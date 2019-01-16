@@ -11,6 +11,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Source", "Source", "{6B4682
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{B3C139BF-3CC7-4E3A-892B-A0525D00B82C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests", "BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests\BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.csproj", "{6190588C-3486-4C81-B06D-CBECBE9DBFFF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,6 +27,10 @@ Global
 		{4216628C-11B2-4AE5-97EC-C2795B1AE115}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4216628C-11B2-4AE5-97EC-C2795B1AE115}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4216628C-11B2-4AE5-97EC-C2795B1AE115}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6190588C-3486-4C81-B06D-CBECBE9DBFFF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6190588C-3486-4C81-B06D-CBECBE9DBFFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6190588C-3486-4C81-B06D-CBECBE9DBFFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6190588C-3486-4C81-B06D-CBECBE9DBFFF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -32,6 +38,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{1353FA5C-B4C4-4682-9A63-A181C3359C81} = {6B4682D6-4668-4411-86E1-EFC9643EB0E0}
 		{4216628C-11B2-4AE5-97EC-C2795B1AE115} = {B3C139BF-3CC7-4E3A-892B-A0525D00B82C}
+		{6190588C-3486-4C81-B06D-CBECBE9DBFFF} = {B3C139BF-3CC7-4E3A-892B-A0525D00B82C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {988707AA-6EE2-4ED0-8D1F-117BDA33EBF9}
