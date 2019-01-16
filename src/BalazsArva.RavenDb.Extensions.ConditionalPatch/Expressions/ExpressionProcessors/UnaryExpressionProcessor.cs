@@ -8,8 +8,12 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
     {
         public bool TryProcess(Expression expression, out string result)
         {
-            var unaryExpression = expression as UnaryExpression;
+            if (expression == null)
+            {
+                throw new ArgumentNullException(nameof(expression));
+            }
 
+            var unaryExpression = expression as UnaryExpression;
             if (unaryExpression == null)
             {
                 result = default;

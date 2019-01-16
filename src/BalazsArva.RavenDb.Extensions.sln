@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.27703.2048
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BalazsArva.RavenDb.Extensions.ConditionalPatch", "BalazsArva.RavenDb.Extensions.ConditionalPatch\BalazsArva.RavenDb.Extensions.ConditionalPatch.csproj", "{1353FA5C-B4C4-4682-9A63-A181C3359C81}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BalazsArva.RavenDb.Extensions.ConditionalPatch.UnitTests", "BalazsArva.RavenDb.Extensions.ConditionalPatch.UnitTests\BalazsArva.RavenDb.Extensions.ConditionalPatch.UnitTests.csproj", "{4216628C-11B2-4AE5-97EC-C2795B1AE115}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{1353FA5C-B4C4-4682-9A63-A181C3359C81}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1353FA5C-B4C4-4682-9A63-A181C3359C81}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1353FA5C-B4C4-4682-9A63-A181C3359C81}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4216628C-11B2-4AE5-97EC-C2795B1AE115}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4216628C-11B2-4AE5-97EC-C2795B1AE115}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4216628C-11B2-4AE5-97EC-C2795B1AE115}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4216628C-11B2-4AE5-97EC-C2795B1AE115}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
