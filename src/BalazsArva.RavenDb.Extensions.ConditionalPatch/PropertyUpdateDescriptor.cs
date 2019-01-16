@@ -4,7 +4,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch
 {
     public abstract class PropertyUpdateDescriptor
     {
-        protected PropertyUpdateDescriptor(Expression memberSelector, object newValue)
+        protected PropertyUpdateDescriptor(MemberExpression memberSelector, object newValue)
         {
             MemberSelector = memberSelector;
             NewValue = newValue;
@@ -12,6 +12,6 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch
 
         public object NewValue { get; }
 
-        public Expression MemberSelector { get; }
+        public MemberExpression MemberSelector { get; }
     }
 }

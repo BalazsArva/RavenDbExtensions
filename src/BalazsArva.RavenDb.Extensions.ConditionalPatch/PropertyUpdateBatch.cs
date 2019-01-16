@@ -14,9 +14,14 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch
 
         public PropertyUpdateBatch<TDocument> Add<TProperty>(Expression<Func<TDocument, TProperty>> memberSelector, TProperty newValue)
         {
-            propertyUpdates.Add(new PropertyUpdateDescriptor<TDocument, TProperty>(memberSelector, newValue));
+            if (memberSelector is MemberExpression memberExpression)
+            {
+                propertyUpdates.Add(new PropertyUpdateDescriptor<TProperty>(memberExpression, newValue));
 
-            return this;
+                return this;
+            }
+
+            throw new ArgumentException($"The parameter '{nameof(memberSelector)}' must be a {nameof(MemberExpression)}.", nameof(memberSelector));
         }
 
         public PropertyUpdateDescriptor[] CreateBatch()
