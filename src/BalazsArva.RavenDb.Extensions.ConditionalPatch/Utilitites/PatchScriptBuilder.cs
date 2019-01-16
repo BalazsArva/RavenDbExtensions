@@ -8,9 +8,9 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Utilitites
 {
     public static class PatchScriptBuilder
     {
-        public static string CreateConditionalPatchScript<TDocument>(PropertyUpdateDescriptor[] propertyUpdates, Expression<Func<TDocument, bool>> condition, IDictionary<string, object> parameters)
+        public static string CreateConditionalPatchScript<TDocument>(PropertyUpdateDescriptor[] propertyUpdates, Expression<Func<TDocument, bool>> condition, ScriptParameterDictionary parameters)
         {
-            var parsedConditionExpression = ExpressionParser.CreateJsScriptFromExpression(condition);
+            var parsedConditionExpression = ExpressionParser.CreateJsScriptFromExpression(condition, parameters);
             var assignmentScripts = new List<string>(propertyUpdates.Length);
 
             foreach (var propertyUpdate in propertyUpdates)
@@ -19,7 +19,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Utilitites
                     propertyUpdate.MemberSelector,
                     Expression.Constant(propertyUpdate.NewValue));
 
-                assignmentScripts.Add(ExpressionParser.CreateJsScriptFromExpression(assignmentExpression));
+                assignmentScripts.Add(ExpressionParser.CreateJsScriptFromExpression(assignmentExpression, parameters));
             }
 
             var scriptCondition = $"if ({parsedConditionExpression})";

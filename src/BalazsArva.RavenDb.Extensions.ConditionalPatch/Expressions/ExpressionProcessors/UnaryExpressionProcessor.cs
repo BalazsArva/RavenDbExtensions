@@ -1,16 +1,22 @@
 ﻿using System;
 using System.Linq.Expressions;
 using BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.Abstractions;
+using BalazsArva.RavenDb.Extensions.ConditionalPatch.Utilitites;
 
 namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionProcessors
 {
     public class UnaryExpressionProcessor : IExpressionProcessor
     {
-        public bool TryProcess(Expression expression, out string result)
+        public bool TryProcess(Expression expression, ScriptParameterDictionary parameters, out string result)
         {
             if (expression == null)
             {
                 throw new ArgumentNullException(nameof(expression));
+            }
+
+            if (parameters == null)
+            {
+                throw new ArgumentNullException(nameof(parameters));
             }
 
             var unaryExpression = expression as UnaryExpression;
@@ -22,7 +28,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
             }
 
             var operation = unaryExpression.NodeType;
-            var operand = ExpressionProcessorPipeline.GetScriptFromConditionExpression(unaryExpression.Operand);
+            var operand = ExpressionParser.CreateJsScriptFromExpression(unaryExpression.Operand, parameters);
 
             switch (operation)
             {

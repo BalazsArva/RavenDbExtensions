@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionProcessors;
 using BalazsArva.RavenDb.Extensions.ConditionalPatch.UnitTests.TestDocuments;
+using BalazsArva.RavenDb.Extensions.ConditionalPatch.Utilitites;
 using NUnit.Framework;
 
 namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.UnitTests.ExpressionProcessorTests
@@ -21,7 +22,19 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.UnitTests.ExpressionPro
         [Test]
         public void TryProcess_ExpressionIsNull_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => processor.TryProcess(null, out var _));
+            var exceptionThrown = Assert.Throws<ArgumentNullException>(() => processor.TryProcess(null, new ScriptParameterDictionary(), out var _));
+
+            Assert.AreEqual("expression", exceptionThrown.ParamName);
+        }
+
+        [Test]
+        public void TryProcess_ParameterDictionaryIsNull_ThrowsArgumentNullException()
+        {
+            var expression = Expression.ArrayLength(LambdaExpression(doc => doc.Array).Body);
+
+            var exceptionThrown = Assert.Throws<ArgumentNullException>(() => processor.TryProcess(expression, null, out var _));
+
+            Assert.AreEqual("parameters", exceptionThrown.ParamName);
         }
 
         [TestCaseSource(nameof(ArrayLengthTestCases))]
@@ -29,7 +42,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.UnitTests.ExpressionPro
         {
             var expression = Expression.ArrayLength(arrayExpression);
 
-            var success = processor.TryProcess(expression, out var resultScript);
+            var success = processor.TryProcess(expression, new ScriptParameterDictionary(), out var resultScript);
 
             Assert.IsTrue(success);
             Assert.AreEqual(expectedScript, resultScript);

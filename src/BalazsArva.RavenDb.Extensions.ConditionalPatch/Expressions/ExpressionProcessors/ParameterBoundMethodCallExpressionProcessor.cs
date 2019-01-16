@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.Abstractions;
+using BalazsArva.RavenDb.Extensions.ConditionalPatch.Utilitites;
 
 namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionProcessors
 {
@@ -33,7 +34,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
             typeof(ulong)
         };
 
-        public bool TryProcess(Expression expression, out string result)
+        public bool TryProcess(Expression expression, ScriptParameterDictionary parameters, out string result)
         {
             if (!(expression is MethodCallExpression methodCallExpression) || !ExpressionHelper.IsParameterBoundExpression(methodCallExpression))
             {
@@ -56,7 +57,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
             }
             else if (method.DeclaringType == StringType)
             {
-                result = ProcessStringMethodInvocation(methodCallExpression, method);
+                result = ProcessStringMethodInvocation(methodCallExpression, method, parameters);
 
                 return true;
             }
@@ -75,7 +76,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
                 throw new NotSupportedException($"The method '{method}' is not supported.");
             }
 
-            var ownerExpressionString = ExpressionProcessorPipeline.GetScriptFromConditionExpression(methodCallExpression.Object);
+            var ownerExpressionString = ExpressionParser.CreateJsScriptFromExpression(methodCallExpression.Object, parameters);
 
             // TODO: Add support for parameters
             result = $"{ownerExpressionString}.{mappedMethodName}()";
@@ -83,7 +84,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
             return true;
         }
 
-        private string ProcessStringMethodInvocation(MethodCallExpression methodCallExpression, MethodInfo methodInfo)
+        private string ProcessStringMethodInvocation(MethodCallExpression methodCallExpression, MethodInfo methodInfo, ScriptParameterDictionary parameters)
         {
             // Methods to implement:
             // contains, startswith, endswith, indexof, lastindexof, insert (!!! not called insert in JS - its splice or some shit like that), padleft, padright, remove (!!!), replace, split, substring,
@@ -116,7 +117,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
                 mappedMethodName = "substring";
 
                 var startIndexExpression = methodCallExpression.Arguments[0];
-                var startIndex = ExpressionProcessorPipeline.GetScriptFromConditionExpression(startIndexExpression);
+                var startIndex = ExpressionParser.CreateJsScriptFromExpression(startIndexExpression, parameters);
 
                 argumentList.Add(startIndex);
             }
@@ -127,8 +128,8 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
                 var startIndexExpression = methodCallExpression.Arguments[0];
                 var lengthExpression = methodCallExpression.Arguments[1];
 
-                var startIndex = ExpressionProcessorPipeline.GetScriptFromConditionExpression(startIndexExpression);
-                var length = ExpressionProcessorPipeline.GetScriptFromConditionExpression(lengthExpression);
+                var startIndex = ExpressionParser.CreateJsScriptFromExpression(startIndexExpression, parameters);
+                var length = ExpressionParser.CreateJsScriptFromExpression(lengthExpression, parameters);
 
                 argumentList.Add(startIndex);
                 argumentList.Add(length);
@@ -138,7 +139,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
                 throw new NotSupportedException($"The method '{methodInfo}' is not supported.");
             }
 
-            var ownerExpressionString = ExpressionProcessorPipeline.GetScriptFromConditionExpression(methodCallExpression.Object);
+            var ownerExpressionString = ExpressionParser.CreateJsScriptFromExpression(methodCallExpression.Object, parameters);
 
             var arguments = string.Join(", ", argumentList);
             return $"{ownerExpressionString}.{mappedMethodName}({arguments})";

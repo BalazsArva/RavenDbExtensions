@@ -1,11 +1,12 @@
 ﻿using System.Linq.Expressions;
 using BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.Abstractions;
+using BalazsArva.RavenDb.Extensions.ConditionalPatch.Utilitites;
 
 namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionProcessors
 {
     public class RuntimeObjectBoundMemberExpressionProcessor : IExpressionProcessor
     {
-        public bool TryProcess(Expression expression, out string result)
+        public bool TryProcess(Expression expression, ScriptParameterDictionary parameters, out string result)
         {
             if (!(expression is MemberExpression memberExpression) || !ExpressionHelper.IsRuntimeObjectBoundExpression(memberExpression))
             {
@@ -15,8 +16,9 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
             }
 
             var expressionValue = RuntimeExpressionValueResolver.GetValue(memberExpression);
+            var parameterKey = parameters.AddNext(expressionValue);
 
-            result = ConstantValueConverter.ConvertToJson(expressionValue);
+            result = $"args.{parameterKey}";
 
             return true;
         }

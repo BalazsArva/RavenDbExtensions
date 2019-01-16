@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Linq.Expressions;
 using BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.Abstractions;
+using BalazsArva.RavenDb.Extensions.ConditionalPatch.Utilitites;
 
 namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionProcessors
 {
     public class BinaryExpressionProcessor : IExpressionProcessor
     {
-        public bool TryProcess(Expression expression, out string result)
+        public bool TryProcess(Expression expression, ScriptParameterDictionary parameters, out string result)
         {
             var binaryExpression = expression as BinaryExpression;
             if (binaryExpression == null)
@@ -17,8 +18,8 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
             }
 
             var operation = binaryExpression.NodeType;
-            var left = ExpressionProcessorPipeline.GetScriptFromConditionExpression(binaryExpression.Left);
-            var right = ExpressionProcessorPipeline.GetScriptFromConditionExpression(binaryExpression.Right);
+            var left = ExpressionParser.CreateJsScriptFromExpression(binaryExpression.Left, parameters);
+            var right = ExpressionParser.CreateJsScriptFromExpression(binaryExpression.Right, parameters);
 
             switch (operation)
             {

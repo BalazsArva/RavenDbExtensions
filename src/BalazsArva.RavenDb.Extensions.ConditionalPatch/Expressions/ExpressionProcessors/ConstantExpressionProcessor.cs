@@ -1,19 +1,18 @@
 ﻿using System.Linq.Expressions;
 using BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.Abstractions;
+using BalazsArva.RavenDb.Extensions.ConditionalPatch.Utilitites;
 
 namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionProcessors
 {
     public class ConstantExpressionProcessor : IExpressionProcessor
     {
-        private const string JSNullString = "null";
-
-        public bool TryProcess(Expression expression, out string result)
+        public bool TryProcess(Expression expression, ScriptParameterDictionary parameters, out string result)
         {
             if (expression is ConstantExpression constantExpression)
             {
-                var expressionValue = constantExpression.Value;
+                var parameterKey = parameters.AddNext(constantExpression.Value);
 
-                result = ConstantValueConverter.ConvertToJson(expressionValue);
+                result = $"args.{parameterKey}";
 
                 return true;
             }

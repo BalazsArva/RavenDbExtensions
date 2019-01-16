@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionProcessors;
+using BalazsArva.RavenDb.Extensions.ConditionalPatch.Utilitites;
 
 namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.Abstractions
 {
@@ -26,7 +27,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.Abstraction
             };
         }
 
-        public static string GetScriptFromConditionExpression(Expression expression)
+        public static string ProcessExpression(Expression expression, ScriptParameterDictionary parameters)
         {
             if (expression == null)
             {
@@ -35,7 +36,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.Abstraction
 
             foreach (var processor in expressionProcessors)
             {
-                if (processor.TryProcess(expression, out var result))
+                if (processor.TryProcess(expression, parameters, out var result))
                 {
                     return result;
                 }

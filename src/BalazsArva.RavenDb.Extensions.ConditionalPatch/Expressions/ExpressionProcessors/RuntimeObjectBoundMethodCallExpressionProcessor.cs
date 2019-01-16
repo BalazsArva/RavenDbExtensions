@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 using BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.Abstractions;
+using BalazsArva.RavenDb.Extensions.ConditionalPatch.Utilitites;
 
 namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionProcessors
 {
@@ -8,27 +9,21 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
     {
         private static readonly Type StringType = typeof(string);
 
-        public bool TryProcess(Expression expression, out string result)
+        public bool TryProcess(Expression expression, ScriptParameterDictionary parameters, out string result)
         {
-            if (!(expression is MethodCallExpression methodCallExpression))
+            if (!(expression is MethodCallExpression methodCallExpression) || !ExpressionHelper.IsRuntimeObjectBoundExpression(methodCallExpression))
             {
                 result = default;
 
                 return false;
             }
 
-            if (ExpressionHelper.IsRuntimeObjectBoundExpression(methodCallExpression))
-            {
-                var expressionValue = RuntimeExpressionValueResolver.GetValue(methodCallExpression);
+            var expressionValue = RuntimeExpressionValueResolver.GetValue(methodCallExpression);
+            var parameterKey = parameters.AddNext(expressionValue);
 
-                result = ConstantValueConverter.ConvertToJson(expressionValue);
+            result = $"args.{parameterKey}";
 
-                return true;
-            }
-
-            result = default;
-
-            return false;
+            return true;
         }
     }
 }
