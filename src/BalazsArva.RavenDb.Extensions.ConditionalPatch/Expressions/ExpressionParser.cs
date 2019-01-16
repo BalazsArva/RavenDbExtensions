@@ -1,4 +1,6 @@
-﻿using System.Linq.Expressions;
+﻿using System;
+using System.Linq.Expressions;
+using BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.Abstractions;
 
 namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions
 {
@@ -6,7 +8,12 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions
     {
         public static string CreateJsScriptFromExpression(Expression expression)
         {
-            return null;
+            if (expression == null)
+            {
+                throw new ArgumentNullException(nameof(expression));
+            }
+
+            return ExpressionProcessorPipeline.GetScriptFromConditionExpression(expression);
         }
     }
 }
