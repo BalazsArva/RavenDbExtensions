@@ -19,11 +19,9 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
 
             if (ExpressionHelper.IsRuntimeObjectBoundExpression(methodCallExpression))
             {
-                var value = RuntimeExpressionValueResolver.GetValue(methodCallExpression);
+                var expressionValue = RuntimeExpressionValueResolver.GetValue(methodCallExpression);
 
-                // There is a logic in converting common types to JS representations in the constant expression processor. So create a dummy constant expression to convert the value.
-                // TODO: Refactor that logic elsewhere so we don't have to create a dummy constant expression.
-                result = ExpressionProcessorPipeline.GetScriptFromConditionExpression(Expression.Constant(value));
+                result = ConstantValueConverter.ConvertToJson(expressionValue);
 
                 return true;
             }

@@ -14,11 +14,9 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
                 return false;
             }
 
-            var value = RuntimeExpressionValueResolver.GetValue(memberExpression);
+            var expressionValue = RuntimeExpressionValueResolver.GetValue(memberExpression);
 
-            // There is a logic in converting common types to JS representations in the constant expression processor. So create a dummy constant expression to convert the value.
-            // TODO: Refactor that logic elsewhere so we don't have to create a dummy constant expression.
-            result = ExpressionProcessorPipeline.GetScriptFromConditionExpression(Expression.Constant(value));
+            result = ConstantValueConverter.ConvertToJson(expressionValue);
 
             return true;
         }

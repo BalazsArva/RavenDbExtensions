@@ -9,7 +9,6 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
         public bool TryProcess(Expression expression, out string result)
         {
             var binaryExpression = expression as BinaryExpression;
-
             if (binaryExpression == null)
             {
                 result = default;
@@ -21,7 +20,6 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
             var left = ExpressionProcessorPipeline.GetScriptFromConditionExpression(binaryExpression.Left);
             var right = ExpressionProcessorPipeline.GetScriptFromConditionExpression(binaryExpression.Right);
 
-            // TODO: Implement the remaining ones
             switch (operation)
             {
                 case ExpressionType.Add:
@@ -36,9 +34,10 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
                     result = $"({left} && {right})";
                     return true;
 
-                case ExpressionType.ArrayLength:
                 case ExpressionType.ArrayIndex:
-                //case ExpressionType.Call:
+                    result = $"{left}[{right}]";
+                    return true;
+
                 case ExpressionType.Coalesce:
                     result = $"({left} != null ? {left} : {right})";
                     return true;
@@ -63,8 +62,6 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
                     result = $"({left} >= {right})";
                     return true;
 
-                //case ExpressionType.Invoke:
-
                 case ExpressionType.LessThan:
                     result = $"({left} < {right})";
                     return true;
@@ -72,8 +69,6 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
                 case ExpressionType.LessThanOrEqual:
                     result = $"({left} <= {right})";
                     return true;
-
-                //case ExpressionType.MemberAccess:
 
                 case ExpressionType.Modulo:
                     result = $"({left} % {right})";
@@ -103,7 +98,10 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
                     result = $"({left} = {right})";
                     return true;
 
-                //case ExpressionType.Index:
+                case ExpressionType.Index:
+                    result = $"{left}[{right}]";
+                    return true;
+
                 case ExpressionType.AddAssign:
                     result = $"({left} += {right})";
                     return true;
