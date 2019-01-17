@@ -40,6 +40,19 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions
             return constantExpression.Value;
         }
 
+        public static object GetValue(UnaryExpression unaryExpression)
+        {
+            if (unaryExpression == null)
+            {
+                throw new ArgumentNullException(nameof(unaryExpression));
+            }
+
+            var convertExpression = Expression.Convert(unaryExpression, typeof(object));
+            var lambdaExpression = Expression.Lambda<Func<object>>(convertExpression);
+
+            return lambdaExpression.Compile()();
+        }
+
         public static object GetValue(MethodCallExpression methodCallExpression)
         {
             if (methodCallExpression == null)

@@ -17,12 +17,9 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
                 return false;
             }
 
-            var leftExpression = TrySimplifyExpression(binaryExpression.Left);
-            var rightExpression = TrySimplifyExpression(binaryExpression.Right);
-
             var operation = binaryExpression.NodeType;
-            var left = ExpressionParser.CreateJsScriptFromExpression(leftExpression, parameters);
-            var right = ExpressionParser.CreateJsScriptFromExpression(rightExpression, parameters);
+            var left = ExpressionParser.CreateJsScriptFromExpression(binaryExpression.Left, parameters);
+            var right = ExpressionParser.CreateJsScriptFromExpression(binaryExpression.Right, parameters);
 
             switch (operation)
             {
@@ -141,22 +138,6 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
                 default:
                     throw new NotSupportedException($"Binary expression with '{operation.ToString()}' operator is not supported.");
             }
-        }
-
-        private Expression TrySimplifyExpression(Expression expression)
-        {
-            if (ExpressionHelper.IsRuntimeObjectBoundExpression(expression))
-            {
-                var convertExpression = Expression.Convert(expression, typeof(object));
-                var lambdaExpression = Expression.Lambda<Func<object>>(convertExpression);
-
-                var compiledLambdaExpression = lambdaExpression.Compile();
-                var value = compiledLambdaExpression();
-
-                return Expression.Constant(value);
-            }
-
-            return expression;
         }
     }
 }

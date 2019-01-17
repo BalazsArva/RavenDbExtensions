@@ -11,6 +11,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Sandbox
         private static void Main(string[] args)
         {
             var dummyChangeId = 1000;
+            var arr = new[] { 100, 200, 300 };
 
             PrintCondition(doc => doc.Id != null);
             PrintCondition(doc => doc.Id != "");
@@ -18,6 +19,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Sandbox
             PrintCondition(doc => doc.LastKnownChangeId > 10);
             PrintCondition(doc => doc.LastKnownChangeId == 0 ? true : doc.LastKnownChangeId > dummyChangeId);
             PrintCondition(doc => doc.LastKnownChangeId == 0 ? true : doc.LastKnownChangeId > dummyChangeId + 1);
+            PrintCondition(doc => doc.LastKnownChangeId == 0 ? true : doc.LastKnownChangeId > arr[arr.Length - 1] + 1);
 
             Console.WriteLine("Press any key to exit...");
             Console.ReadKey();
@@ -36,12 +38,12 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Sandbox
             Console.WriteLine();
 
             var parameters = new ScriptParameterDictionary();
-            var result = ExpressionParser.CreateJsScriptFromExpression(expression, parameters);
+            var script = ExpressionParser.CreateJsScriptFromExpression(expression, parameters);
 
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("Created JavaScript expression:");
             Console.Write("\t");
-            Console.WriteLine(result);
+            Console.WriteLine(script);
             Console.WriteLine();
 
             Console.ForegroundColor = ConsoleColor.DarkCyan;
