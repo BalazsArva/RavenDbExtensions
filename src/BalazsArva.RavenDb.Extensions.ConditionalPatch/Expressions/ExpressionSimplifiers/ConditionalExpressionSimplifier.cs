@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.Abstractions;
 
 namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionSimplifiers
@@ -14,19 +13,16 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionS
                 var simplifiedIfTrueExpression = ExpressionSimplifier.SimplifyExpression(conditionalExpression.IfTrue);
                 var simplifiedIfFalseExpression = ExpressionSimplifier.SimplifyExpression(conditionalExpression.IfFalse);
 
-                // If the condition and both of the branches can be evaluated, then evaluate and return the result as a constant expression.
-                if (ExpressionHelper.IsRuntimeObjectBoundExpression(simplifiedTestExpression) &&
-                    ExpressionHelper.IsRuntimeObjectBoundExpression(simplifiedIfTrueExpression) &&
-                    ExpressionHelper.IsRuntimeObjectBoundExpression(simplifiedIfFalseExpression))
+                // If the condition and both of the branches could be evaluated, then evaluate and return the result as a constant expression.
+                if (simplifiedTestExpression is ConstantExpression constantTestExpression &&
+                    simplifiedIfTrueExpression is ConstantExpression constantIfTrueExpression &&
+                    simplifiedIfFalseExpression is ConstantExpression constantIfFalseExpression)
                 {
-                    // Wrap the expression in a lambda, compile and call it to get the evaluated result.
-                    var convertExpression = Expression.Convert(conditionalExpression, typeof(object));
-                    var lambdaExpression = Expression.Lambda<Func<object>>(convertExpression);
+                    var evaluationResult = (bool)constantTestExpression.Value
+                        ? constantIfTrueExpression.Value
+                        : constantIfFalseExpression.Value;
 
-                    var compiledLambdaExpression = lambdaExpression.Compile();
-                    var value = compiledLambdaExpression();
-
-                    result = Expression.Constant(value);
+                    result = Expression.Constant(evaluationResult);
 
                     return true;
                 }
@@ -34,7 +30,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionS
                 // If the True and False branches resolve to the same value, replace the ?: expression with a constant expression with the value of either side.
                 if (simplifiedIfTrueExpression is ConstantExpression ifTrueExpression &&
                     simplifiedIfFalseExpression is ConstantExpression ifFalseExpression &&
-                    Equals(ifTrueExpression.Value, ifFalseExpression.Value))
+                    ifTrueExpression.Value.Equals(ifFalseExpression.Value))
                 {
                     result = Expression.Constant(ifTrueExpression.Value);
 
@@ -42,11 +38,9 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionS
                 }
 
                 // The condition is runtime resolvable - evaluate it and return the appropriate "branch"
-                if (simplifiedTestExpression is ConstantExpression constantTestExpression)
+                if (simplifiedTestExpression is ConstantExpression constantTestExpression2)
                 {
-                    var conditionValue = (bool)constantTestExpression.Value;
-
-                    result = conditionValue
+                    result = (bool)constantTestExpression2.Value
                         ? simplifiedIfTrueExpression
                         : simplifiedIfFalseExpression;
 
