@@ -55,6 +55,23 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions
             {
                 return IsRuntimeObjectBoundExpression(methodCallExpression.Object);
             }
+            else if (expression is BinaryExpression binaryExpression)
+            {
+                return
+                    IsRuntimeObjectBoundExpression(binaryExpression.Left) &&
+                    IsRuntimeObjectBoundExpression(binaryExpression.Right);
+            }
+            else if (expression is UnaryExpression unaryExpression)
+            {
+                return IsRuntimeObjectBoundExpression(unaryExpression.Operand);
+            }
+            else if (expression is ConditionalExpression conditionalExpression)
+            {
+                return
+                    IsRuntimeObjectBoundExpression(conditionalExpression.Test) &&
+                    IsRuntimeObjectBoundExpression(conditionalExpression.IfTrue) &&
+                    IsRuntimeObjectBoundExpression(conditionalExpression.IfFalse);
+            }
 
             throw new NotSupportedException($"Expression of type '{expression.GetType().FullName}' is not supported.");
         }
@@ -108,6 +125,23 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions
             else if (expression is ConstantExpression constantExpression)
             {
                 return false;
+            }
+            else if (expression is BinaryExpression binaryExpression)
+            {
+                return
+                    IsParameterBoundExpression(binaryExpression.Left) &&
+                    IsParameterBoundExpression(binaryExpression.Right);
+            }
+            else if (expression is UnaryExpression unaryExpression)
+            {
+                return IsParameterBoundExpression(unaryExpression.Operand);
+            }
+            else if (expression is ConditionalExpression conditionalExpression)
+            {
+                return
+                    IsParameterBoundExpression(conditionalExpression.Test) &&
+                    IsParameterBoundExpression(conditionalExpression.IfTrue) &&
+                    IsParameterBoundExpression(conditionalExpression.IfFalse);
             }
 
             throw new NotSupportedException($"Expression of type '{expression.GetType().FullName}' is not supported.");

@@ -148,7 +148,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
             if (ExpressionHelper.IsRuntimeObjectBoundExpression(expression))
             {
                 var convertExpression = Expression.Convert(expression, typeof(object));
-                var lambdaExpression = Expression.Lambda<Func<object>>(expression);
+                var lambdaExpression = Expression.Lambda<Func<object>>(convertExpression);
 
                 var compiledLambdaExpression = lambdaExpression.Compile();
                 var value = compiledLambdaExpression();
