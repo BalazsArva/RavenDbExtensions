@@ -1,2 +1,3 @@
-# RavenDb-Conditional-Patch
-An extension for RavenDB to send conditional patch requests.
+# RavenDb Extensions
+
+Extensions for RavenDb 4.1. **Not meant for production use**.
