@@ -10,17 +10,16 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionS
         {
             if (expression is ConditionalExpression conditionalExpression)
             {
-                // TODO: If the Test is constant true OR both IfTrue and IfFalse evaluate to the same value, should reduce the expression. See
-                // PrintCondition(doc => doc.LastKnownChangeId == 0 ? true : (dummyChangeId1 < dummyChangeId2 ? true : false));
-                // in the sandbox app.
                 var simplifiedTestExpression = ExpressionSimplifier.SimplifyExpression(conditionalExpression.Test);
                 var simplifiedIfTrueExpression = ExpressionSimplifier.SimplifyExpression(conditionalExpression.IfTrue);
                 var simplifiedIfFalseExpression = ExpressionSimplifier.SimplifyExpression(conditionalExpression.IfFalse);
 
+                // If the condition and both of the branches can be evaluated, then evaluate and return the result as a constant expression.
                 if (ExpressionHelper.IsRuntimeObjectBoundExpression(simplifiedTestExpression) &&
                     ExpressionHelper.IsRuntimeObjectBoundExpression(simplifiedIfTrueExpression) &&
                     ExpressionHelper.IsRuntimeObjectBoundExpression(simplifiedIfFalseExpression))
                 {
+                    // Wrap the expression in a lambda, compile and call it to get the evaluated result.
                     var convertExpression = Expression.Convert(conditionalExpression, typeof(object));
                     var lambdaExpression = Expression.Lambda<Func<object>>(convertExpression);
 
@@ -28,6 +27,28 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionS
                     var value = compiledLambdaExpression();
 
                     result = Expression.Constant(value);
+
+                    return true;
+                }
+
+                // If the True and False branches resolve to the same value, replace the ?: expression with a constant expression with the value of either side.
+                if (simplifiedIfTrueExpression is ConstantExpression ifTrueExpression &&
+                    simplifiedIfFalseExpression is ConstantExpression ifFalseExpression &&
+                    Equals(ifTrueExpression.Value, ifFalseExpression.Value))
+                {
+                    result = Expression.Constant(ifTrueExpression.Value);
+
+                    return true;
+                }
+
+                // The condition is runtime resolvable - evaluate it and return the appropriate "branch"
+                if (simplifiedTestExpression is ConstantExpression constantTestExpression)
+                {
+                    var conditionValue = (bool)constantTestExpression.Value;
+
+                    result = conditionValue
+                        ? simplifiedIfTrueExpression
+                        : simplifiedIfFalseExpression;
 
                     return true;
                 }
