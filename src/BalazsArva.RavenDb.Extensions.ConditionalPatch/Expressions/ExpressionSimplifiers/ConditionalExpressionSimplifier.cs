@@ -10,6 +10,9 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionS
         {
             if (expression is ConditionalExpression conditionalExpression)
             {
+                // TODO: If the Test is constant true OR both IfTrue and IfFalse evaluate to the same value, should reduce the expression. See
+                // PrintCondition(doc => doc.LastKnownChangeId == 0 ? true : (dummyChangeId1 < dummyChangeId2 ? true : false));
+                // in the sandbox app.
                 var simplifiedTestExpression = ExpressionSimplifier.SimplifyExpression(conditionalExpression.Test);
                 var simplifiedIfTrueExpression = ExpressionSimplifier.SimplifyExpression(conditionalExpression.IfTrue);
                 var simplifiedIfFalseExpression = ExpressionSimplifier.SimplifyExpression(conditionalExpression.IfFalse);
