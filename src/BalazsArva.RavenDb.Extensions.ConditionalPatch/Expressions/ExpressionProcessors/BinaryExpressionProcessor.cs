@@ -24,6 +24,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
             switch (operation)
             {
                 case ExpressionType.Add:
+                case ExpressionType.AddChecked:
                     result = $"({left} + {right})";
                     return true;
 
@@ -76,6 +77,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
                     return true;
 
                 case ExpressionType.Multiply:
+                case ExpressionType.MultiplyChecked:
                     result = $"({left} * {right})";
                     return true;
 
@@ -92,6 +94,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
                     return true;
 
                 case ExpressionType.Subtract:
+                case ExpressionType.SubtractChecked:
                     result = $"({left} - {right})";
                     return true;
 
@@ -104,6 +107,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
                     return true;
 
                 case ExpressionType.AddAssign:
+                case ExpressionType.AddAssignChecked:
                     result = $"({left} += {right})";
                     return true;
 
@@ -124,6 +128,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
                     return true;
 
                 case ExpressionType.MultiplyAssign:
+                case ExpressionType.MultiplyAssignChecked:
                     result = $"({left} *= {right})";
                     return true;
 
@@ -132,6 +137,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
                     return true;
 
                 case ExpressionType.SubtractAssign:
+                case ExpressionType.SubtractAssignChecked:
                     result = $"({left} -= {right})";
                     return true;
 
