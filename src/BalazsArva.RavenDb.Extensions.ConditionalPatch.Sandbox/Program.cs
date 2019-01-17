@@ -10,16 +10,18 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Sandbox
     {
         private static void Main(string[] args)
         {
-            var dummyChangeId = 1000;
+            var dummyChangeId1 = 1000;
+            var dummyChangeId2 = 2000;
             var arr = new[] { 100, 200, 300 };
 
             PrintCondition(doc => doc.Id != null);
             PrintCondition(doc => doc.Id != "");
             PrintCondition(doc => doc.Id != "a");
             PrintCondition(doc => doc.LastKnownChangeId > 10);
-            PrintCondition(doc => doc.LastKnownChangeId == 0 ? true : doc.LastKnownChangeId > dummyChangeId);
-            PrintCondition(doc => doc.LastKnownChangeId == 0 ? true : doc.LastKnownChangeId > dummyChangeId + 1);
+            PrintCondition(doc => doc.LastKnownChangeId == 0 ? true : doc.LastKnownChangeId > dummyChangeId1);
+            PrintCondition(doc => doc.LastKnownChangeId == 0 ? true : doc.LastKnownChangeId > dummyChangeId1 + 1);
             PrintCondition(doc => doc.LastKnownChangeId == 0 ? true : doc.LastKnownChangeId > arr[arr.Length - 1] + 1);
+            PrintCondition(doc => doc.LastKnownChangeId == 0 ? true : (dummyChangeId1 < dummyChangeId2 ? true : false));
 
             Console.WriteLine("Press any key to exit...");
             Console.ReadKey();

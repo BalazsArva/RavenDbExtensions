@@ -16,7 +16,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionS
                 if (ExpressionHelper.IsRuntimeObjectBoundExpression(simplifiedLeftExpression) &&
                     ExpressionHelper.IsRuntimeObjectBoundExpression(simplifiedRightExpression))
                 {
-                    var convertExpression = Expression.Convert(expression, typeof(object));
+                    var convertExpression = Expression.Convert(binaryExpression, typeof(object));
                     var lambdaExpression = Expression.Lambda<Func<object>>(convertExpression);
 
                     var compiledLambdaExpression = lambdaExpression.Compile();
