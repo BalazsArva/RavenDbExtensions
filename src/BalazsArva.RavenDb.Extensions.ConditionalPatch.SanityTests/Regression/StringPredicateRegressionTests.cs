@@ -78,6 +78,26 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.Regression
             Assert.AreEqual(0, result.parameters.Count);
         }
 
+        [Test]
+        public void Predicate_String_TestingWithStringContainsChar()
+        {
+            var result = GetParsedJavaScript(doc => doc.SomeString.Contains('a'));
+
+            Assert.AreEqual("(this.SomeString.indexOf(args.__param1) != -1)", result.script);
+            Assert.AreEqual(1, result.parameters.Count);
+            Assert.AreEqual('a', result.parameters["__param1"]);
+        }
+
+        [Test]
+        public void Predicate_String_TestingWithStringContainsString()
+        {
+            var result = GetParsedJavaScript(doc => doc.SomeString.Contains("ab"));
+
+            Assert.AreEqual("(this.SomeString.indexOf(args.__param1) != -1)", result.script);
+            Assert.AreEqual(1, result.parameters.Count);
+            Assert.AreEqual("ab", result.parameters["__param1"]);
+        }
+
         private (string script, ScriptParameterDictionary parameters) GetParsedJavaScript<TProperty>(Expression<Func<TestDocument, TProperty>> expression)
         {
             var parameters = new ScriptParameterDictionary();

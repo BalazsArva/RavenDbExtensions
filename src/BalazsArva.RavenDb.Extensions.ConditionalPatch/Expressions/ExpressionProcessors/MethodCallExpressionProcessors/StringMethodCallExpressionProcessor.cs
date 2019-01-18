@@ -11,6 +11,9 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
     {
         private static readonly Type stringType = typeof(string);
 
+        private static readonly MethodInfo NonStatic_Contains_Char = stringType.GetMethod("Contains", new[] { typeof(char) });
+        private static readonly MethodInfo NonStatic_Contains_String = stringType.GetMethod("Contains", new[] { typeof(string) });
+
         private static readonly MethodInfo NonStatic_ToLower = stringType.GetMethod("ToLower", Array.Empty<Type>());
         private static readonly MethodInfo NonStatic_ToUpper = stringType.GetMethod("ToUpper", Array.Empty<Type>());
 
@@ -86,12 +89,24 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
         private bool TryProcessNonStaticStringMethodInvocation(MethodCallExpression methodCallExpression, MethodInfo methodInfo, ScriptParameterDictionary parameters, out string result)
         {
             // Methods to implement:
-            // contains, startswith, endswith, indexof, lastindexof, insert (!!! not called insert in JS - its splice or some shit like that), padleft, padright, remove (!!!), replace, split, substring,
+            // startswith, endswith, indexof, lastindexof, insert (!!! not called insert in JS - its splice or some shit like that), padleft, padright, remove (!!!), replace, split, substring,
             var argumentList = new List<string>();
 
             string mappedMethodName = null;
 
-            if (methodInfo == NonStatic_ToLower)
+            if (methodInfo == NonStatic_Contains_Char || methodInfo == NonStatic_Contains_String)
+            {
+                mappedMethodName = "toLowerCase";
+
+                var searchInValue = ExpressionParser.CreateJsScriptFromExpression(methodCallExpression.Object, parameters);
+
+                var searchForValueExpression = methodCallExpression.Arguments[0];
+                var searchForValue = ExpressionParser.CreateJsScriptFromExpression(searchForValueExpression, parameters);
+
+                result = $"({searchInValue}.indexOf({searchForValue}) != -1)";
+                return true;
+            }
+            else if (methodInfo == NonStatic_ToLower)
             {
                 mappedMethodName = "toLowerCase";
             }
