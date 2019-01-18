@@ -6,19 +6,21 @@ using BalazsArva.RavenDb.Extensions.ConditionalPatch.Utilitites;
 
 namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionProcessors.MethodCallExpressionProcessors
 {
-    public class ParameterBoundMethodCallExpressionProcessor : IExpressionProcessor
+    public class IntegralTypesMethodCallExpressionProcessor : IExpressionProcessor
     {
-        private readonly IEnumerable<IExpressionProcessor> expressionProcessors;
-
-        public ParameterBoundMethodCallExpressionProcessor()
+        private static readonly HashSet<Type> integralTypes = new HashSet<Type>
         {
-            expressionProcessors = new List<IExpressionProcessor>
-            {
-                new ObjectMethodCallExpressionProcessor(),
-                new IntegralTypesMethodCallExpressionProcessor(),
-                new StringMethodCallExpressionProcessor()
-            };
-        }
+            typeof(sbyte),
+            typeof(byte),
+            typeof(ushort),
+            typeof(short),
+            typeof(int),
+            typeof(uint),
+            typeof(long),
+            typeof(ulong)
+        };
+
+        private const string ToStringMethodName = "ToString";
 
         public bool TryProcess(Expression expression, ScriptParameterDictionary parameters, out string result)
         {
@@ -33,23 +35,22 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
             }
 
             var methodCallExpression = expression as MethodCallExpression;
-            if (methodCallExpression == null)
+            if (methodCallExpression == null || !integralTypes.Contains(methodCallExpression.Method.DeclaringType))
             {
                 result = default;
 
                 return false;
             }
 
-            foreach (var processor in expressionProcessors)
+            if (methodCallExpression.Method.Name == ToStringMethodName)
             {
-                if (processor.TryProcess(expression, parameters, out result))
-                {
-                    return true;
-                }
+                var ownerExpressionString = ExpressionParser.CreateJsScriptFromExpression(methodCallExpression.Object, parameters);
+
+                result = $"{ownerExpressionString}.toString()";
+                return true;
             }
 
             result = default;
-
             return false;
         }
     }
