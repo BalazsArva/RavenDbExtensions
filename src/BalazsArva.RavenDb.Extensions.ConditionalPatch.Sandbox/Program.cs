@@ -14,17 +14,13 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Sandbox
             var dummyChangeId2 = 2000;
             var arr = new[] { 100, 200, 300 };
 
-            PrintCondition(doc => doc.Id != null);
-            PrintCondition(doc => doc.Id != "");
-            PrintCondition(doc => doc.Id != "a");
             PrintCondition(doc => doc.LastKnownChangeId > 10);
             PrintCondition(doc => doc.LastKnownChangeId == 0 ? true : doc.LastKnownChangeId > dummyChangeId1);
             PrintCondition(doc => doc.LastKnownChangeId == 0 ? true : doc.LastKnownChangeId > dummyChangeId1 + 1);
             PrintCondition(doc => doc.LastKnownChangeId == 0 ? true : doc.LastKnownChangeId > arr[arr.Length - 1] + 1);
             PrintCondition(doc => doc.LastKnownChangeId == 0 ? true : (dummyChangeId1 < dummyChangeId2 ? true : false));
             PrintCondition(doc => doc.LastKnownChangeId > DateTime.UtcNow.Year);
-            PrintCondition(doc => string.IsNullOrEmpty(doc.Id));
-            PrintCondition(doc => string.IsNullOrWhiteSpace(doc.Id));
+
             PrintCondition(doc => string.IsNullOrWhiteSpace(doc.Id) ? true : (doc.LastKnownChangeId < dummyChangeId1 ? true : false));
             PrintCondition(doc => doc.LastKnownChangeId.ToString() != "");
 
