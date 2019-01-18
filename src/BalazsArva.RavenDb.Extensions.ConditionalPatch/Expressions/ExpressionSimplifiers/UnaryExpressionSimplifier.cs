@@ -1,17 +1,56 @@
-﻿using System.Linq.Expressions;
+﻿using System;
+using System.Linq.Expressions;
 using BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.Abstractions;
 
 namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionSimplifiers
 {
     public class UnaryExpressionSimplifier : IExpressionSimplifier
     {
+        private static readonly Type objectType = typeof(object);
+
         public bool TrySimplifyExpression(Expression expression, out Expression result)
         {
-            if (expression is UnaryExpression unaryExpression && ExpressionHelper.IsRuntimeObjectBoundExpression(unaryExpression))
+            if (expression is UnaryExpression unaryExpression)
             {
-                result = Expression.Constant(RuntimeExpressionValueResolver.GetValue(unaryExpression));
+                var simplifiedOperand = ExpressionSimplifier.SimplifyExpression(unaryExpression.Operand);
 
-                return true;
+                // Runtime-resolvable value
+                if (simplifiedOperand.NodeType == ExpressionType.Constant)
+                {
+                    Expression convertExpression;
+
+                    // If we encounter a conversion, we need to perform the original conversion first before forcing every type into Object.
+                    // If we did something like "10 (int) < 10 (long)" we would get an error without this when simplifying the binary operation
+                    // because the compiler generates a conversion because of the operator but here we would discard it if we didn't include the
+                    // Expression.Convert(..., unaryExpression.Type) expression.
+                    if (unaryExpression.NodeType == ExpressionType.Convert || unaryExpression.NodeType == ExpressionType.ConvertChecked)
+                    {
+                        convertExpression = Expression.Convert(
+                            Expression.Convert(simplifiedOperand, unaryExpression.Type),
+                            objectType);
+                    }
+                    else
+                    {
+                        convertExpression = Expression.Convert(simplifiedOperand, objectType);
+                    }
+
+                    var valueProviderLambdaExpression = Expression.Lambda<Func<object>>(convertExpression);
+
+                    var valueProvider = valueProviderLambdaExpression.Compile();
+                    var resolvedValue = valueProvider();
+
+                    result = Expression.Constant(resolvedValue);
+
+                    return true;
+                }
+
+                var updatedUnaryExpression = unaryExpression.Update(simplifiedOperand);
+                if (updatedUnaryExpression != unaryExpression)
+                {
+                    result = updatedUnaryExpression;
+
+                    return true;
+                }
             }
 
             result = default;
