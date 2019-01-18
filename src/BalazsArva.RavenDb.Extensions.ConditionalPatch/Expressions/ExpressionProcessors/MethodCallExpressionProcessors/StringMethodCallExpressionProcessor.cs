@@ -18,6 +18,9 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
 
         private static readonly MethodInfo NonStatic_Insert = stringType.GetMethod("Insert", new[] { typeof(int), typeof(string) });
 
+        private static readonly MethodInfo NonStatic_Remove_StartIndex = stringType.GetMethod("Remove", new[] { typeof(int) });
+        private static readonly MethodInfo NonStatic_Remove_StartIndex_Count = stringType.GetMethod("Remove", new[] { typeof(int), typeof(int) });
+
         private static readonly MethodInfo NonStatic_PadLeft_TotalWith = stringType.GetMethod("PadLeft", new[] { typeof(int) });
         private static readonly MethodInfo NonStatic_PadLeft_TotalWith_PaddingChar = stringType.GetMethod("PadLeft", new[] { typeof(int), typeof(char) });
 
@@ -128,6 +131,33 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
                 var insertValue = ExpressionParser.CreateJsScriptFromExpression(insertValueExpression, parameters);
 
                 result = $"({insertIntoValue}.substring(0, {indexValue}) + {insertValue} + {insertIntoValue}.substring({indexValue}))";
+                return true;
+            }
+            else if (methodInfo == NonStatic_Remove_StartIndex)
+            {
+                // TODO: Write tests
+                var removeFromValue = ExpressionParser.CreateJsScriptFromExpression(methodCallExpression.Object, parameters);
+
+                var startIndexValueExpression = methodCallExpression.Arguments[0];
+                var startIndexValue = ExpressionParser.CreateJsScriptFromExpression(startIndexValueExpression, parameters);
+
+                result = $"({removeFromValue}.substring(0, {startIndexValue}))";
+                return true;
+            }
+            else if (methodInfo == NonStatic_Remove_StartIndex_Count)
+            {
+                // TODO: Write tests
+                var removeFromValue = ExpressionParser.CreateJsScriptFromExpression(methodCallExpression.Object, parameters);
+
+                var firstSegmentStartIndexExpression = methodCallExpression.Arguments[0];
+                var firstSegmentStartIndexValue = ExpressionParser.CreateJsScriptFromExpression(firstSegmentStartIndexExpression, parameters);
+
+                var countExpression = methodCallExpression.Arguments[1];
+
+                var secondSegmentStartIndexExpression = Expression.Add(firstSegmentStartIndexExpression, countExpression);
+                var secondSegmentStartIndexValue = ExpressionParser.CreateJsScriptFromExpression(secondSegmentStartIndexExpression, parameters);
+
+                result = $"({removeFromValue}.substring(0, {firstSegmentStartIndexValue}) + {removeFromValue}.substring({secondSegmentStartIndexValue}))";
                 return true;
             }
             else if (methodInfo == NonStatic_StartsWith_Value)

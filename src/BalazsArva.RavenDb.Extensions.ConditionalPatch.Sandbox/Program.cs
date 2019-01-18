@@ -24,6 +24,11 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Sandbox
             PrintCondition(doc => string.IsNullOrWhiteSpace(doc.Id) ? true : (doc.LastKnownChangeId < dummyChangeId1 ? true : false));
             PrintCondition(doc => doc.LastKnownChangeId.ToString() != "");
 
+            PrintCondition(doc => doc.Id.Remove(1) != "");
+            PrintCondition(doc => doc.Id.Remove(1, 2) != "");
+            PrintCondition(doc => doc.Id.Remove(doc.Id.Length - 3, 2) != "");
+
+
             Console.WriteLine("Press any key to exit...");
             Console.ReadKey();
         }
