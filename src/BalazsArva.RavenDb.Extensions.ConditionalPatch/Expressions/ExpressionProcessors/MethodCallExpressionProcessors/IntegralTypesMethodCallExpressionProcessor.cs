@@ -6,7 +6,7 @@ using BalazsArva.RavenDb.Extensions.ConditionalPatch.Utilitites;
 
 namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionProcessors.MethodCallExpressionProcessors
 {
-    public class IntegralTypesMethodCallExpressionProcessor : IExpressionProcessor
+    public class IntegralTypesMethodCallExpressionProcessor : IExpressionProcessor<MethodCallExpression>
     {
         private static readonly HashSet<Type> integralTypes = new HashSet<Type>
         {
@@ -22,11 +22,11 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
 
         private const string ToStringMethodName = "ToString";
 
-        public bool TryProcess(Expression expression, ScriptParameterDictionary parameters, out string result)
+        public bool TryProcess(MethodCallExpression methodCallExpression, ScriptParameterDictionary parameters, out string result)
         {
-            if (expression == null)
+            if (methodCallExpression == null)
             {
-                throw new ArgumentNullException(nameof(expression));
+                throw new ArgumentNullException(nameof(methodCallExpression));
             }
 
             if (parameters == null)
@@ -34,8 +34,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
                 throw new ArgumentNullException(nameof(parameters));
             }
 
-            var methodCallExpression = expression as MethodCallExpression;
-            if (methodCallExpression == null || !integralTypes.Contains(methodCallExpression.Method.DeclaringType))
+            if (!integralTypes.Contains(methodCallExpression.Method.DeclaringType))
             {
                 result = default;
 

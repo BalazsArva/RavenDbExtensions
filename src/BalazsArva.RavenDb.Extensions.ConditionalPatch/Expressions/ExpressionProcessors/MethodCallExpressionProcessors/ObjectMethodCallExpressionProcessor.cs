@@ -6,17 +6,17 @@ using BalazsArva.RavenDb.Extensions.ConditionalPatch.Utilitites;
 
 namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionProcessors.MethodCallExpressionProcessors
 {
-    public class ObjectMethodCallExpressionProcessor : IExpressionProcessor
+    public class ObjectMethodCallExpressionProcessor : IExpressionProcessor<MethodCallExpression>
     {
         private static readonly Type objectType = typeof(object);
 
         private static readonly MethodInfo NonStatic_ToString = objectType.GetMethod("ToString", Array.Empty<Type>());
 
-        public bool TryProcess(Expression expression, ScriptParameterDictionary parameters, out string result)
+        public bool TryProcess(MethodCallExpression methodCallExpression, ScriptParameterDictionary parameters, out string result)
         {
-            if (expression == null)
+            if (methodCallExpression == null)
             {
-                throw new ArgumentNullException(nameof(expression));
+                throw new ArgumentNullException(nameof(methodCallExpression));
             }
 
             if (parameters == null)
@@ -24,8 +24,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
                 throw new ArgumentNullException(nameof(parameters));
             }
 
-            var methodCallExpression = expression as MethodCallExpression;
-            if (methodCallExpression == null || methodCallExpression.Method.DeclaringType != objectType)
+            if (methodCallExpression.Method.DeclaringType != objectType)
             {
                 result = default;
 

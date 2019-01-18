@@ -8,7 +8,7 @@ using NUnit.Framework;
 namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.Regression
 {
     [TestFixture]
-    public class RegressionTests
+    public class StringPredicateRegressionTests
     {
         [Test]
         public void Predicate_String_TestAgainstNull()

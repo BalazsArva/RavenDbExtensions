@@ -7,7 +7,7 @@ using BalazsArva.RavenDb.Extensions.ConditionalPatch.Utilitites;
 
 namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionProcessors.MethodCallExpressionProcessors
 {
-    public class StringMethodCallExpressionProcessor : IExpressionProcessor
+    public class StringMethodCallExpressionProcessor : IExpressionProcessor<MethodCallExpression>
     {
         private static readonly Type stringType = typeof(string);
 
@@ -26,11 +26,11 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
         //private static readonly MethodInfo Static_Concat = stringType.GetMethod("Concat");
         //private static readonly MethodInfo Static_Join = stringType.GetMethod("Join");
 
-        public bool TryProcess(Expression expression, ScriptParameterDictionary parameters, out string result)
+        public bool TryProcess(MethodCallExpression methodCallExpression, ScriptParameterDictionary parameters, out string result)
         {
-            if (expression == null)
+            if (methodCallExpression == null)
             {
-                throw new ArgumentNullException(nameof(expression));
+                throw new ArgumentNullException(nameof(methodCallExpression));
             }
 
             if (parameters == null)
@@ -38,8 +38,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
                 throw new ArgumentNullException(nameof(parameters));
             }
 
-            var methodCallExpression = expression as MethodCallExpression;
-            if (methodCallExpression == null || methodCallExpression.Method.DeclaringType != stringType)
+            if (methodCallExpression.Method.DeclaringType != stringType)
             {
                 result = default;
 

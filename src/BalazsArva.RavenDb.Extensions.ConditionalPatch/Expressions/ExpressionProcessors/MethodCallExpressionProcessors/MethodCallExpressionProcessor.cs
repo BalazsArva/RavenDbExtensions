@@ -6,13 +6,13 @@ using BalazsArva.RavenDb.Extensions.ConditionalPatch.Utilitites;
 
 namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionProcessors.MethodCallExpressionProcessors
 {
-    public class ParameterBoundMethodCallExpressionProcessor : IExpressionProcessor
+    public class MethodCallExpressionProcessor : IExpressionProcessor
     {
-        private readonly IEnumerable<IExpressionProcessor> expressionProcessors;
+        private readonly IEnumerable<IExpressionProcessor<MethodCallExpression>> expressionProcessors;
 
-        public ParameterBoundMethodCallExpressionProcessor()
+        public MethodCallExpressionProcessor()
         {
-            expressionProcessors = new List<IExpressionProcessor>
+            expressionProcessors = new List<IExpressionProcessor<MethodCallExpression>>
             {
                 new ObjectMethodCallExpressionProcessor(),
                 new IntegralTypesMethodCallExpressionProcessor(),
@@ -36,13 +36,12 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
             if (methodCallExpression == null)
             {
                 result = default;
-
                 return false;
             }
 
             foreach (var processor in expressionProcessors)
             {
-                if (processor.TryProcess(expression, parameters, out result))
+                if (processor.TryProcess(methodCallExpression, parameters, out result))
                 {
                     return true;
                 }
