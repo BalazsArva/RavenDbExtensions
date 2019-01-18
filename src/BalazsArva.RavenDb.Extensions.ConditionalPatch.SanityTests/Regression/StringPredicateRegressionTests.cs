@@ -191,6 +191,62 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.Regression
             Assert.AreEqual("ab", result.parameters["__param1"]);
         }
 
+        [Test]
+        public void Predicate_String_TestPadLeftWithTotalWidthOnly()
+        {
+            const string fiveSpaces = "     ";
+
+            var result = GetParsedJavaScript(doc => doc.SomeString.PadLeft(5) != fiveSpaces);
+
+            Assert.AreEqual("(this.SomeString.padStart(args.__param1, args.__param2) != args.__param3)", result.script);
+            Assert.AreEqual(3, result.parameters.Count);
+            Assert.AreEqual(5, result.parameters["__param1"]);
+            Assert.AreEqual(' ', result.parameters["__param2"]);
+            Assert.AreEqual(fiveSpaces, result.parameters["__param3"]);
+        }
+
+        [Test]
+        public void Predicate_String_TestPadLeftWithTotalWidthAndPaddingChar()
+        {
+            const string fiveAs = "aaaaa";
+
+            var result = GetParsedJavaScript(doc => doc.SomeString.PadLeft(5, 'a') != fiveAs);
+
+            Assert.AreEqual("(this.SomeString.padStart(args.__param1, args.__param2) != args.__param3)", result.script);
+            Assert.AreEqual(3, result.parameters.Count);
+            Assert.AreEqual(5, result.parameters["__param1"]);
+            Assert.AreEqual('a', result.parameters["__param2"]);
+            Assert.AreEqual(fiveAs, result.parameters["__param3"]);
+        }
+
+        [Test]
+        public void Predicate_String_TestPadRightWithTotalWidthOnly()
+        {
+            const string fiveSpaces = "     ";
+
+            var result = GetParsedJavaScript(doc => doc.SomeString.PadRight(5) != fiveSpaces);
+
+            Assert.AreEqual("(this.SomeString.padEnd(args.__param1, args.__param2) != args.__param3)", result.script);
+            Assert.AreEqual(3, result.parameters.Count);
+            Assert.AreEqual(5, result.parameters["__param1"]);
+            Assert.AreEqual(' ', result.parameters["__param2"]);
+            Assert.AreEqual(fiveSpaces, result.parameters["__param3"]);
+        }
+
+        [Test]
+        public void Predicate_String_TestPadRightWithTotalWidthAndPaddingChar()
+        {
+            const string fiveAs = "aaaaa";
+
+            var result = GetParsedJavaScript(doc => doc.SomeString.PadRight(5, 'a') != fiveAs);
+
+            Assert.AreEqual("(this.SomeString.padEnd(args.__param1, args.__param2) != args.__param3)", result.script);
+            Assert.AreEqual(3, result.parameters.Count);
+            Assert.AreEqual(5, result.parameters["__param1"]);
+            Assert.AreEqual('a', result.parameters["__param2"]);
+            Assert.AreEqual(fiveAs, result.parameters["__param3"]);
+        }
+
         private (string script, ScriptParameterDictionary parameters) GetParsedJavaScript<TProperty>(Expression<Func<TestDocument, TProperty>> expression)
         {
             var parameters = new ScriptParameterDictionary();

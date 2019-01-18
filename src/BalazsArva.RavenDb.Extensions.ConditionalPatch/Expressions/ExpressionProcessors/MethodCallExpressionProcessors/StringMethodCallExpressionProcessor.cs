@@ -9,10 +9,18 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
 {
     public class StringMethodCallExpressionProcessor : IExpressionProcessor<MethodCallExpression>
     {
+        private const char DefaultPaddingChar = ' ';
+
         private static readonly Type stringType = typeof(string);
 
         private static readonly MethodInfo NonStatic_Contains_Char = stringType.GetMethod("Contains", new[] { typeof(char) });
         private static readonly MethodInfo NonStatic_Contains_String = stringType.GetMethod("Contains", new[] { typeof(string) });
+
+        private static readonly MethodInfo NonStatic_PadLeft_TotalWith = stringType.GetMethod("PadLeft", new[] { typeof(int) });
+        private static readonly MethodInfo NonStatic_PadLeft_TotalWith_PaddingChar = stringType.GetMethod("PadLeft", new[] { typeof(int), typeof(char) });
+
+        private static readonly MethodInfo NonStatic_PadRight_TotalWith = stringType.GetMethod("PadRight", new[] { typeof(int) });
+        private static readonly MethodInfo NonStatic_PadRight_TotalWith_PaddingChar = stringType.GetMethod("PadRight", new[] { typeof(int), typeof(char) });
 
         private static readonly MethodInfo NonStatic_ToLower = stringType.GetMethod("ToLower", Array.Empty<Type>());
         private static readonly MethodInfo NonStatic_ToUpper = stringType.GetMethod("ToUpper", Array.Empty<Type>());
@@ -92,7 +100,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
         private bool TryProcessNonStaticStringMethodInvocation(MethodCallExpression methodCallExpression, MethodInfo methodInfo, ScriptParameterDictionary parameters, out string result)
         {
             // Methods to implement:
-            // indexof, lastindexof, insert (!!! not called insert in JS - its splice or some shit like that), padleft, padright, remove (!!!), replace, split
+            // indexof, lastindexof, insert (!!! not called insert in JS - its splice or some shit like that), remove (!!!), replace, split
             var argumentList = new List<string>();
 
             string mappedMethodName = null;
@@ -126,6 +134,42 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
                 var startWithValue = ExpressionParser.CreateJsScriptFromExpression(startWithValueExpression, parameters);
 
                 argumentList.Add(startWithValue);
+            }
+            else if (methodInfo == NonStatic_PadLeft_TotalWith || methodInfo == NonStatic_PadLeft_TotalWith_PaddingChar)
+            {
+                mappedMethodName = "padStart";
+
+                var totalWidthExpression = methodCallExpression.Arguments[0];
+                var totalWidth = ExpressionParser.CreateJsScriptFromExpression(totalWidthExpression, parameters);
+
+                Expression paddingCharExpression = Expression.Constant(DefaultPaddingChar);
+                if (methodInfo == NonStatic_PadLeft_TotalWith_PaddingChar)
+                {
+                    paddingCharExpression = methodCallExpression.Arguments[1];
+                }
+
+                var paddingChar = ExpressionParser.CreateJsScriptFromExpression(paddingCharExpression, parameters);
+
+                argumentList.Add(totalWidth);
+                argumentList.Add(paddingChar);
+            }
+            else if (methodInfo == NonStatic_PadRight_TotalWith || methodInfo == NonStatic_PadRight_TotalWith_PaddingChar)
+            {
+                mappedMethodName = "padEnd";
+
+                var totalWidthExpression = methodCallExpression.Arguments[0];
+                var totalWidth = ExpressionParser.CreateJsScriptFromExpression(totalWidthExpression, parameters);
+
+                Expression paddingCharExpression = Expression.Constant(DefaultPaddingChar);
+                if (methodInfo == NonStatic_PadRight_TotalWith_PaddingChar)
+                {
+                    paddingCharExpression = methodCallExpression.Arguments[1];
+                }
+
+                var paddingChar = ExpressionParser.CreateJsScriptFromExpression(paddingCharExpression, parameters);
+
+                argumentList.Add(totalWidth);
+                argumentList.Add(paddingChar);
             }
             else if (methodInfo == NonStatic_ToLower)
             {
