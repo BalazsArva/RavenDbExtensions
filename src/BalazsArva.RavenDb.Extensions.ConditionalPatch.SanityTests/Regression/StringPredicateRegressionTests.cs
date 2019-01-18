@@ -98,6 +98,79 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.Regression
             Assert.AreEqual("ab", result.parameters["__param1"]);
         }
 
+        [Test]
+        public void Predicate_String_TestTrim()
+        {
+            var result = GetParsedJavaScript(doc => doc.SomeString.Trim() != string.Empty);
+
+            Assert.AreEqual("(this.SomeString.trim() != args.__param1)", result.script);
+            Assert.AreEqual(1, result.parameters.Count);
+            Assert.AreEqual(string.Empty, result.parameters["__param1"]);
+        }
+
+        [Test]
+        public void Predicate_String_TestTrimStart()
+        {
+            var result = GetParsedJavaScript(doc => doc.SomeString.TrimStart() != string.Empty);
+
+            Assert.AreEqual("(this.SomeString.trimStart() != args.__param1)", result.script);
+            Assert.AreEqual(1, result.parameters.Count);
+            Assert.AreEqual(string.Empty, result.parameters["__param1"]);
+        }
+
+        [Test]
+        public void Predicate_String_TestTrimEnd()
+        {
+            var result = GetParsedJavaScript(doc => doc.SomeString.TrimEnd() != string.Empty);
+
+            Assert.AreEqual("(this.SomeString.trimEnd() != args.__param1)", result.script);
+            Assert.AreEqual(1, result.parameters.Count);
+            Assert.AreEqual(string.Empty, result.parameters["__param1"]);
+        }
+
+        [Test]
+        public void Predicate_String_TestToLower()
+        {
+            var result = GetParsedJavaScript(doc => doc.SomeString.ToLower() != string.Empty);
+
+            Assert.AreEqual("(this.SomeString.toLowerCase() != args.__param1)", result.script);
+            Assert.AreEqual(1, result.parameters.Count);
+            Assert.AreEqual(string.Empty, result.parameters["__param1"]);
+        }
+
+        [Test]
+        public void Predicate_String_TestToUpper()
+        {
+            var result = GetParsedJavaScript(doc => doc.SomeString.ToUpper() != string.Empty);
+
+            Assert.AreEqual("(this.SomeString.toUpperCase() != args.__param1)", result.script);
+            Assert.AreEqual(1, result.parameters.Count);
+            Assert.AreEqual(string.Empty, result.parameters["__param1"]);
+        }
+
+        [Test]
+        public void Predicate_String_TestSubstringWithStartIndex()
+        {
+            var result = GetParsedJavaScript(doc => doc.SomeString.Substring(1) != "a");
+
+            Assert.AreEqual("(this.SomeString.substring(args.__param1) != args.__param2)", result.script);
+            Assert.AreEqual(2, result.parameters.Count);
+            Assert.AreEqual(1, result.parameters["__param1"]);
+            Assert.AreEqual("a", result.parameters["__param2"]);
+        }
+
+        [Test]
+        public void Predicate_String_TestSubstringWithStartIndexAndLength()
+        {
+            var result = GetParsedJavaScript(doc => doc.SomeString.Substring(1, 2) != "ab");
+
+            Assert.AreEqual("(this.SomeString.substring(args.__param1, args.__param2) != args.__param3)", result.script);
+            Assert.AreEqual(3, result.parameters.Count);
+            Assert.AreEqual(1, result.parameters["__param1"]);
+            Assert.AreEqual(2, result.parameters["__param2"]);
+            Assert.AreEqual("ab", result.parameters["__param3"]);
+        }
+
         private (string script, ScriptParameterDictionary parameters) GetParsedJavaScript<TProperty>(Expression<Func<TestDocument, TProperty>> expression)
         {
             var parameters = new ScriptParameterDictionary();

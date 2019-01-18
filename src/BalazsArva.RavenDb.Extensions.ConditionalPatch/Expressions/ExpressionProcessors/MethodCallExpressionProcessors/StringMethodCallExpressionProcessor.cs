@@ -112,7 +112,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
             }
             else if (methodInfo == NonStatic_ToUpper)
             {
-                mappedMethodName = "toLowerCase";
+                mappedMethodName = "toUpperCase";
             }
             else if (methodInfo == NonStatic_TrimStart)
             {
