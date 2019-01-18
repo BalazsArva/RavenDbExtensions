@@ -10,7 +10,6 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionS
             if (expression is LambdaExpression lambdaExpression)
             {
                 var simplifiedBodyExpression = ExpressionSimplifier.SimplifyExpression(lambdaExpression.Body);
-
                 if (simplifiedBodyExpression != lambdaExpression.Body)
                 {
                     result = Expression.Lambda(simplifiedBodyExpression, lambdaExpression.Name, lambdaExpression.TailCall, lambdaExpression.Parameters);

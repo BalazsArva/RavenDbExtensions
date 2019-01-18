@@ -47,11 +47,10 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionS
                     return true;
                 }
 
-                if (simplifiedTestExpression != conditionalExpression.Test ||
-                    simplifiedIfTrueExpression != conditionalExpression.IfTrue ||
-                    simplifiedIfFalseExpression != conditionalExpression.IfFalse)
+                var updatedConditionalExpression = conditionalExpression.Update(simplifiedTestExpression, simplifiedIfTrueExpression, simplifiedIfFalseExpression);
+                if (updatedConditionalExpression != conditionalExpression)
                 {
-                    result = conditionalExpression.Update(simplifiedTestExpression, simplifiedIfTrueExpression, simplifiedIfFalseExpression);
+                    result = updatedConditionalExpression;
 
                     return true;
                 }
