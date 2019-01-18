@@ -13,8 +13,9 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionS
                 var simplifiedLeftExpression = ExpressionSimplifier.SimplifyExpression(binaryExpression.Left);
                 var simplifiedRightExpression = ExpressionSimplifier.SimplifyExpression(binaryExpression.Right);
 
-                if (ExpressionHelper.IsRuntimeObjectBoundExpression(simplifiedLeftExpression) &&
-                    ExpressionHelper.IsRuntimeObjectBoundExpression(simplifiedRightExpression))
+                // Both operands could be resolved to a runtime value, perform the binary operation between them.
+                if (simplifiedLeftExpression.NodeType == ExpressionType.Constant &&
+                    simplifiedRightExpression.NodeType == ExpressionType.Constant)
                 {
                     var convertExpression = Expression.Convert(binaryExpression, typeof(object));
                     var lambdaExpression = Expression.Lambda<Func<object>>(convertExpression);
@@ -27,7 +28,8 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionS
                     return true;
                 }
 
-                // Only one of the two sides could be simplified - the expression as a whole still changed (in this case, the other side is parameter-bound).
+                // One (or both) side could be simplified, but one (or both) of them is parameter-bound.
+                // In this case, cannot evaluate to a runtime value, but can return a simpler expression.
                 if (simplifiedLeftExpression != binaryExpression.Left || simplifiedRightExpression != binaryExpression.Right)
                 {
                     result = Expression.MakeBinary(binaryExpression.NodeType, simplifiedLeftExpression, simplifiedRightExpression);
