@@ -53,6 +53,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions
             }
             else if (expression is MethodCallExpression methodCallExpression)
             {
+                // TODO: Handle static methods
                 return IsRuntimeObjectBoundExpression(methodCallExpression.Object);
             }
             else if (expression is BinaryExpression binaryExpression)
