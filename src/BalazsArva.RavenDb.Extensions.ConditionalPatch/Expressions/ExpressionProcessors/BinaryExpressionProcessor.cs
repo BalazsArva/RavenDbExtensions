@@ -9,6 +9,16 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
     {
         public bool TryProcess(Expression expression, ScriptParameterDictionary parameters, out string result)
         {
+            if (expression == null)
+            {
+                throw new ArgumentNullException(nameof(expression));
+            }
+
+            if (parameters == null)
+            {
+                throw new ArgumentNullException(nameof(parameters));
+            }
+
             var binaryExpression = expression as BinaryExpression;
             if (binaryExpression == null)
             {
@@ -142,7 +152,8 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
                     return true;
 
                 default:
-                    throw new NotSupportedException($"Binary expression with '{operation.ToString()}' operator is not supported.");
+                    result = default;
+                    return false;
             }
         }
     }

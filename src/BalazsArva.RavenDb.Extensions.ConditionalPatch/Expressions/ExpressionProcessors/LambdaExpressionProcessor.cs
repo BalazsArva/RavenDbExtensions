@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using System;
+using System.Linq.Expressions;
 using BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.Abstractions;
 using BalazsArva.RavenDb.Extensions.ConditionalPatch.Utilitites;
 
@@ -8,6 +9,16 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
     {
         public bool TryProcess(Expression expression, ScriptParameterDictionary parameters, out string result)
         {
+            if (expression == null)
+            {
+                throw new ArgumentNullException(nameof(expression));
+            }
+
+            if (parameters == null)
+            {
+                throw new ArgumentNullException(nameof(parameters));
+            }
+
             var lambdaExpression = expression as LambdaExpression;
             if (lambdaExpression == null)
             {

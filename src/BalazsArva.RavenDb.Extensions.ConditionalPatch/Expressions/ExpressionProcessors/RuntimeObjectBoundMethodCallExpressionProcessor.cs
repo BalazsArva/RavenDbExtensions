@@ -11,6 +11,16 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
 
         public bool TryProcess(Expression expression, ScriptParameterDictionary parameters, out string result)
         {
+            if (expression == null)
+            {
+                throw new ArgumentNullException(nameof(expression));
+            }
+
+            if (parameters == null)
+            {
+                throw new ArgumentNullException(nameof(parameters));
+            }
+
             if (!(expression is MethodCallExpression methodCallExpression) || !ExpressionHelper.IsRuntimeObjectBoundExpression(methodCallExpression))
             {
                 result = default;
