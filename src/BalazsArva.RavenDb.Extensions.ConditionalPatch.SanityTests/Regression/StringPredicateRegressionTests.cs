@@ -250,13 +250,49 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.Regression
         [Test]
         public void Predicate_String_TestInsert()
         {
-            var result = GetParsedJavaScript(doc => doc.SomeString.Insert(5, "abc") != "");
+            var result = GetParsedJavaScript(doc => doc.SomeString.Insert(5, "abc") != string.Empty);
 
             Assert.AreEqual("((this.SomeString.substring(0, args.__param1) + args.__param2 + this.SomeString.substring(args.__param1)) != args.__param3)", result.script);
             Assert.AreEqual(3, result.parameters.Count);
             Assert.AreEqual(5, result.parameters["__param1"]);
             Assert.AreEqual("abc", result.parameters["__param2"]);
             Assert.AreEqual(string.Empty, result.parameters["__param3"]);
+        }
+
+        [Test]
+        public void Predicate_String_TestRemoveWithStartIndex()
+        {
+            var result = GetParsedJavaScript(doc => doc.SomeString.Remove(5) != string.Empty);
+
+            Assert.AreEqual("(this.SomeString.substring(0, args.__param1) != args.__param2)", result.script);
+            Assert.AreEqual(2, result.parameters.Count);
+            Assert.AreEqual(5, result.parameters["__param1"]);
+            Assert.AreEqual(string.Empty, result.parameters["__param2"]);
+        }
+
+        [Test]
+        public void Predicate_String_TestRemoveWithStartIndexAndCount()
+        {
+            var result = GetParsedJavaScript(doc => doc.SomeString.Remove(5, 1) != string.Empty);
+
+            Assert.AreEqual("((this.SomeString.substring(0, args.__param1) + this.SomeString.substring(args.__param2)) != args.__param3)", result.script);
+            Assert.AreEqual(3, result.parameters.Count);
+            Assert.AreEqual(5, result.parameters["__param1"]);
+            Assert.AreEqual(6, result.parameters["__param2"]);
+            Assert.AreEqual(string.Empty, result.parameters["__param3"]);
+        }
+
+        [Test]
+        public void Predicate_String_TestRemoveWithStartIndexAndCount_CountCalculatedFromParameterLength()
+        {
+            var result = GetParsedJavaScript(doc => doc.SomeString.Remove(doc.SomeString.Length - 2, 1) != string.Empty);
+
+            Assert.AreEqual("((this.SomeString.substring(0, (this.SomeString.Length - args.__param1)) + this.SomeString.substring(((this.SomeString.Length - args.__param2) + args.__param3))) != args.__param4)", result.script);
+            Assert.AreEqual(4, result.parameters.Count);
+            Assert.AreEqual(2, result.parameters["__param1"]);
+            Assert.AreEqual(2, result.parameters["__param2"]);
+            Assert.AreEqual(1, result.parameters["__param3"]);
+            Assert.AreEqual(string.Empty, result.parameters["__param4"]);
         }
 
         private (string script, ScriptParameterDictionary parameters) GetParsedJavaScript<TProperty>(Expression<Func<TestDocument, TProperty>> expression)

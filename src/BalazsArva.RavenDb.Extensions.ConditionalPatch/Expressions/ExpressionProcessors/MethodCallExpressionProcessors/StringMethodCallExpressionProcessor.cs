@@ -105,7 +105,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
         private bool TryProcessNonStaticStringMethodInvocation(MethodCallExpression methodCallExpression, MethodInfo methodInfo, ScriptParameterDictionary parameters, out string result)
         {
             // Methods to implement:
-            // indexof, lastindexof, insert (!!! not called insert in JS - its splice or some shit like that), remove (!!!), replace, split
+            // indexof, lastindexof, replace, split
             var argumentList = new List<string>();
 
             string mappedMethodName = null;
@@ -135,18 +135,16 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
             }
             else if (methodInfo == NonStatic_Remove_StartIndex)
             {
-                // TODO: Write tests
-                var removeFromValue = ExpressionParser.CreateJsScriptFromExpression(methodCallExpression.Object, parameters);
+                mappedMethodName = "substring";
 
                 var startIndexValueExpression = methodCallExpression.Arguments[0];
                 var startIndexValue = ExpressionParser.CreateJsScriptFromExpression(startIndexValueExpression, parameters);
 
-                result = $"({removeFromValue}.substring(0, {startIndexValue}))";
-                return true;
+                argumentList.Add("0");
+                argumentList.Add(startIndexValue);
             }
             else if (methodInfo == NonStatic_Remove_StartIndex_Count)
             {
-                // TODO: Write tests
                 var removeFromValue = ExpressionParser.CreateJsScriptFromExpression(methodCallExpression.Object, parameters);
 
                 var firstSegmentStartIndexExpression = methodCallExpression.Arguments[0];
