@@ -12,6 +12,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
 
         public MethodCallExpressionProcessor()
         {
+            // TODO: Consider LINQ extension methods as well!
             expressionProcessors = new List<IExpressionProcessor<MethodCallExpression>>
             {
                 new ObjectMethodCallExpressionProcessor(),

@@ -16,6 +16,8 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
         private static readonly MethodInfo NonStatic_Contains_Char = stringType.GetMethod("Contains", new[] { typeof(char) });
         private static readonly MethodInfo NonStatic_Contains_String = stringType.GetMethod("Contains", new[] { typeof(string) });
 
+        private static readonly MethodInfo NonStatic_Insert = stringType.GetMethod("Insert", new[] { typeof(int), typeof(string) });
+
         private static readonly MethodInfo NonStatic_PadLeft_TotalWith = stringType.GetMethod("PadLeft", new[] { typeof(int) });
         private static readonly MethodInfo NonStatic_PadLeft_TotalWith_PaddingChar = stringType.GetMethod("PadLeft", new[] { typeof(int), typeof(char) });
 
@@ -107,14 +109,25 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
 
             if (methodInfo == NonStatic_Contains_Char || methodInfo == NonStatic_Contains_String)
             {
-                mappedMethodName = "toLowerCase";
-
                 var searchInValue = ExpressionParser.CreateJsScriptFromExpression(methodCallExpression.Object, parameters);
 
                 var searchForValueExpression = methodCallExpression.Arguments[0];
                 var searchForValue = ExpressionParser.CreateJsScriptFromExpression(searchForValueExpression, parameters);
 
                 result = $"({searchInValue}.indexOf({searchForValue}) != -1)";
+                return true;
+            }
+            else if (methodInfo == NonStatic_Insert)
+            {
+                var insertIntoValue = ExpressionParser.CreateJsScriptFromExpression(methodCallExpression.Object, parameters);
+
+                var indexValueExpression = methodCallExpression.Arguments[0];
+                var indexValue = ExpressionParser.CreateJsScriptFromExpression(indexValueExpression, parameters);
+
+                var insertValueExpression = methodCallExpression.Arguments[1];
+                var insertValue = ExpressionParser.CreateJsScriptFromExpression(insertValueExpression, parameters);
+
+                result = $"({insertIntoValue}.substring(0, {indexValue}) + {insertValue} + {insertIntoValue}.substring({indexValue}))";
                 return true;
             }
             else if (methodInfo == NonStatic_StartsWith_Value)

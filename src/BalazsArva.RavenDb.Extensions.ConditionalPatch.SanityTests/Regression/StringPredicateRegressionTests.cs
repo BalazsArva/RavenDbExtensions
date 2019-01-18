@@ -247,6 +247,18 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.Regression
             Assert.AreEqual(fiveAs, result.parameters["__param3"]);
         }
 
+        [Test]
+        public void Predicate_String_TestInsert()
+        {
+            var result = GetParsedJavaScript(doc => doc.SomeString.Insert(5, "abc") != "");
+
+            Assert.AreEqual("((this.SomeString.substring(0, args.__param1) + args.__param2 + this.SomeString.substring(args.__param1)) != args.__param3)", result.script);
+            Assert.AreEqual(3, result.parameters.Count);
+            Assert.AreEqual(5, result.parameters["__param1"]);
+            Assert.AreEqual("abc", result.parameters["__param2"]);
+            Assert.AreEqual(string.Empty, result.parameters["__param3"]);
+        }
+
         private (string script, ScriptParameterDictionary parameters) GetParsedJavaScript<TProperty>(Expression<Func<TestDocument, TProperty>> expression)
         {
             var parameters = new ScriptParameterDictionary();
