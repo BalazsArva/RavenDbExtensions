@@ -21,6 +21,9 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
         private static readonly MethodInfo NonStatic_TrimStart = stringType.GetMethod("TrimStart", Array.Empty<Type>());
         private static readonly MethodInfo NonStatic_TrimEnd = stringType.GetMethod("TrimEnd", Array.Empty<Type>());
 
+        private static readonly MethodInfo NonStatic_StartsWith_Value = stringType.GetMethod("StartsWith", new[] { typeof(string) });
+        private static readonly MethodInfo NonStatic_EndsWith_Value = stringType.GetMethod("EndsWith", new[] { typeof(string) });
+
         private static readonly MethodInfo NonStatic_Substring_StartIndex = stringType.GetMethod("Substring", new[] { typeof(int) });
         private static readonly MethodInfo NonStatic_Substring_StartIndex_Length = stringType.GetMethod("Substring", new[] { typeof(int), typeof(int) });
 
@@ -89,7 +92,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
         private bool TryProcessNonStaticStringMethodInvocation(MethodCallExpression methodCallExpression, MethodInfo methodInfo, ScriptParameterDictionary parameters, out string result)
         {
             // Methods to implement:
-            // startswith, endswith, indexof, lastindexof, insert (!!! not called insert in JS - its splice or some shit like that), padleft, padright, remove (!!!), replace, split, substring,
+            // indexof, lastindexof, insert (!!! not called insert in JS - its splice or some shit like that), padleft, padright, remove (!!!), replace, split
             var argumentList = new List<string>();
 
             string mappedMethodName = null;
@@ -105,6 +108,24 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
 
                 result = $"({searchInValue}.indexOf({searchForValue}) != -1)";
                 return true;
+            }
+            else if (methodInfo == NonStatic_StartsWith_Value)
+            {
+                mappedMethodName = "startsWith";
+
+                var startWithValueExpression = methodCallExpression.Arguments[0];
+                var startWithValue = ExpressionParser.CreateJsScriptFromExpression(startWithValueExpression, parameters);
+
+                argumentList.Add(startWithValue);
+            }
+            else if (methodInfo == NonStatic_EndsWith_Value)
+            {
+                mappedMethodName = "endsWith";
+
+                var startWithValueExpression = methodCallExpression.Arguments[0];
+                var startWithValue = ExpressionParser.CreateJsScriptFromExpression(startWithValueExpression, parameters);
+
+                argumentList.Add(startWithValue);
             }
             else if (methodInfo == NonStatic_ToLower)
             {
