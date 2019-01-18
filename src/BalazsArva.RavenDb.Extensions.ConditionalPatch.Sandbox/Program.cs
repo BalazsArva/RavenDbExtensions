@@ -25,6 +25,8 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Sandbox
             PrintCondition(doc => doc.LastKnownChangeId > DateTime.UtcNow.Year);
             PrintCondition(doc => string.IsNullOrEmpty(doc.Id));
             PrintCondition(doc => string.IsNullOrWhiteSpace(doc.Id));
+            PrintCondition(doc => string.IsNullOrWhiteSpace(doc.Id) ? true : (doc.LastKnownChangeId < dummyChangeId1 ? true : false));
+            PrintCondition(doc => doc.LastKnownChangeId.ToString() != "");
 
             Console.WriteLine("Press any key to exit...");
             Console.ReadKey();

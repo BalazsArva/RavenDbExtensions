@@ -8,9 +8,6 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
 {
     public class ParameterBoundMethodCallExpressionProcessor : IExpressionProcessor
     {
-        private static readonly Type ObjectType = typeof(object);
-        private static readonly Type StringType = typeof(string);
-
         private static readonly HashSet<Type> IntegralTypes = new HashSet<Type>
         {
             typeof(sbyte),
@@ -22,6 +19,17 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
             typeof(long),
             typeof(ulong)
         };
+
+        private readonly IEnumerable<IExpressionProcessor> expressionProcessors;
+
+        public ParameterBoundMethodCallExpressionProcessor()
+        {
+            expressionProcessors = new List<IExpressionProcessor>
+            {
+                new ObjectMethodCallExpressionProcessor(),
+                new StringMethodCallExpressionProcessor()
+            };
+        }
 
         public bool TryProcess(Expression expression, ScriptParameterDictionary parameters, out string result)
         {
@@ -43,46 +51,17 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
                 return false;
             }
 
-            string mappedMethodName = null;
-            var method = methodCallExpression.Method;
-
-            if (method.DeclaringType == ObjectType)
+            foreach (var processor in expressionProcessors)
             {
-                switch (method.Name)
+                if (processor.TryProcess(expression, parameters, out result))
                 {
-                    case "ToString":
-                        mappedMethodName = "toString";
-                        break;
-                }
-            }
-            else if (method.DeclaringType == StringType)
-            {
-                // TODO: Do this more elegantly
-                var tmp = new StringMethodCallExpressionProcessor();
-
-                return tmp.TryProcess(methodCallExpression, parameters, out result);
-            }
-            else if (IntegralTypes.Contains(method.DeclaringType))
-            {
-                switch (method.Name)
-                {
-                    case "ToString":
-                        mappedMethodName = "toString";
-                        break;
+                    return true;
                 }
             }
 
-            if (mappedMethodName == null)
-            {
-                throw new NotSupportedException($"The method '{method}' is not supported.");
-            }
+            result = default;
 
-            var ownerExpressionString = ExpressionParser.CreateJsScriptFromExpression(methodCallExpression.Object, parameters);
-
-            // TODO: Add support for parameters
-            result = $"{ownerExpressionString}.{mappedMethodName}()";
-
-            return true;
+            return false;
         }
     }
 }
