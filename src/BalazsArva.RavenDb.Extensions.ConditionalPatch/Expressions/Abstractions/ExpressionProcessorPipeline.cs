@@ -21,8 +21,6 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.Abstraction
                 new ConditionalExpressionProcessor(),
                 new ParameterExpressionProcessor(),
                 new ParameterBoundMemberExpressionProcessor(),
-                new RuntimeObjectBoundMemberExpressionProcessor(),
-                new RuntimeObjectBoundMethodCallExpressionProcessor(),
                 new ParameterBoundMethodCallExpressionProcessor()
             };
         }

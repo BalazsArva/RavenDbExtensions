@@ -77,7 +77,8 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
                     return true;
 
                 default:
-                    throw new NotSupportedException($"Unary expression with '{operation.ToString()}' operator is not supported.");
+                    result = default;
+                    return false;
             }
         }
     }
