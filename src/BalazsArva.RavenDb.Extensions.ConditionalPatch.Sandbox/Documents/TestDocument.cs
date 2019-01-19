@@ -1,4 +1,6 @@
-﻿namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Sandbox.Documents
+﻿using System.Collections.Generic;
+
+namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Sandbox.Documents
 {
     public class TestDocument
     {
@@ -7,5 +9,9 @@
         public long LastKnownChangeId { get; set; }
 
         public long[] RecordedChangeIds { get; set; }
+
+        public List<string> ReferenceIds { get; set; }
+
+        public HashSet<string> InvolvedUsers { get; set; }
     }
 }

@@ -25,6 +25,9 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Sandbox
             PrintCondition(doc => doc.LastKnownChangeId.ToString() != "");
 
             PrintCondition(doc => doc.Id.Length > 0);
+            PrintCondition(doc => doc.RecordedChangeIds.Length > 0);
+            PrintCondition(doc => doc.ReferenceIds.Count > 0);
+            PrintCondition(doc => doc.InvolvedUsers.Count > 0);
 
             Console.WriteLine("Press any key to exit...");
             Console.ReadKey();
