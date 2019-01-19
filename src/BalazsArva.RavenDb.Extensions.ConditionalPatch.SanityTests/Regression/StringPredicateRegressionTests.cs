@@ -287,7 +287,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.Regression
         {
             var result = GetParsedJavaScript(doc => doc.SomeString.Remove(doc.SomeString.Length - 2, 1) != string.Empty);
 
-            Assert.AreEqual("((this.SomeString.substring(0, (this.SomeString.Length - args.__param1)) + this.SomeString.substring(((this.SomeString.Length - args.__param2) + args.__param3))) != args.__param4)", result.script);
+            Assert.AreEqual("((this.SomeString.substring(0, (this.SomeString.length - args.__param1)) + this.SomeString.substring(((this.SomeString.length - args.__param2) + args.__param3))) != args.__param4)", result.script);
             Assert.AreEqual(4, result.parameters.Count);
             Assert.AreEqual(2, result.parameters["__param1"]);
             Assert.AreEqual(2, result.parameters["__param2"]);
