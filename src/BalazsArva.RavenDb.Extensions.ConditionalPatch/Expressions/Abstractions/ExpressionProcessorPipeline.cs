@@ -22,7 +22,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.Abstraction
                 new UnaryExpressionProcessor(),
                 new ConditionalExpressionProcessor(),
                 new ParameterExpressionProcessor(),
-                new ParameterBoundMemberExpressionProcessor(),
+                new MemberExpressionProcessor(),
                 new MethodCallExpressionProcessor()
             };
         }

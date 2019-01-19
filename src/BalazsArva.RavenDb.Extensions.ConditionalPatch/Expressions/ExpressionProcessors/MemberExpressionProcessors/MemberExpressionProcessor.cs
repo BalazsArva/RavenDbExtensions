@@ -6,7 +6,7 @@ using BalazsArva.RavenDb.Extensions.ConditionalPatch.Utilitites;
 
 namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionProcessors.MemberExpressionProcessors
 {
-    public class ParameterBoundMemberExpressionProcessor : IExpressionProcessor
+    public class MemberExpressionProcessor : IExpressionProcessor
     {
         private readonly IEnumerable<IExpressionProcessor<MemberExpression>> expressionProcessors;
 
@@ -17,7 +17,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
         // - String length (if handled differently from array length)
         // - ICollection.Count
         // - String.Length
-        public ParameterBoundMemberExpressionProcessor()
+        public MemberExpressionProcessor()
         {
             // TODO: Consider LINQ extension methods as well!
             expressionProcessors = new List<IExpressionProcessor<MemberExpression>>
