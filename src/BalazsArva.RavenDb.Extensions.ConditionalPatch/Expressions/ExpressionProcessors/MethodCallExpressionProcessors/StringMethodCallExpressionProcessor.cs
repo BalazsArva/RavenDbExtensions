@@ -11,37 +11,39 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
     {
         private const char DefaultPaddingChar = ' ';
 
-        private static readonly Type stringType = typeof(string);
+        private static readonly Type StringType = typeof(string);
+        private static readonly Type IntType = typeof(int);
+        private static readonly Type CharType = typeof(char);
 
-        private static readonly MethodInfo NonStatic_Contains_Char = stringType.GetMethod("Contains", new[] { typeof(char) });
-        private static readonly MethodInfo NonStatic_Contains_String = stringType.GetMethod("Contains", new[] { typeof(string) });
+        private static readonly MethodInfo NonStatic_Contains_Char = StringType.GetMethod("Contains", new[] { CharType });
+        private static readonly MethodInfo NonStatic_Contains_String = StringType.GetMethod("Contains", new[] { StringType });
 
-        private static readonly MethodInfo NonStatic_Insert = stringType.GetMethod("Insert", new[] { typeof(int), typeof(string) });
+        private static readonly MethodInfo NonStatic_Insert = StringType.GetMethod("Insert", new[] { IntType, StringType });
 
-        private static readonly MethodInfo NonStatic_Remove_StartIndex = stringType.GetMethod("Remove", new[] { typeof(int) });
-        private static readonly MethodInfo NonStatic_Remove_StartIndex_Count = stringType.GetMethod("Remove", new[] { typeof(int), typeof(int) });
+        private static readonly MethodInfo NonStatic_Remove_StartIndex = StringType.GetMethod("Remove", new[] { IntType });
+        private static readonly MethodInfo NonStatic_Remove_StartIndex_Count = StringType.GetMethod("Remove", new[] { IntType, IntType });
 
-        private static readonly MethodInfo NonStatic_PadLeft_TotalWith = stringType.GetMethod("PadLeft", new[] { typeof(int) });
-        private static readonly MethodInfo NonStatic_PadLeft_TotalWith_PaddingChar = stringType.GetMethod("PadLeft", new[] { typeof(int), typeof(char) });
+        private static readonly MethodInfo NonStatic_PadLeft_TotalWith = StringType.GetMethod("PadLeft", new[] { IntType });
+        private static readonly MethodInfo NonStatic_PadLeft_TotalWith_PaddingChar = StringType.GetMethod("PadLeft", new[] { IntType, CharType });
 
-        private static readonly MethodInfo NonStatic_PadRight_TotalWith = stringType.GetMethod("PadRight", new[] { typeof(int) });
-        private static readonly MethodInfo NonStatic_PadRight_TotalWith_PaddingChar = stringType.GetMethod("PadRight", new[] { typeof(int), typeof(char) });
+        private static readonly MethodInfo NonStatic_PadRight_TotalWith = StringType.GetMethod("PadRight", new[] { IntType });
+        private static readonly MethodInfo NonStatic_PadRight_TotalWith_PaddingChar = StringType.GetMethod("PadRight", new[] { IntType, CharType });
 
-        private static readonly MethodInfo NonStatic_ToLower = stringType.GetMethod("ToLower", Array.Empty<Type>());
-        private static readonly MethodInfo NonStatic_ToUpper = stringType.GetMethod("ToUpper", Array.Empty<Type>());
+        private static readonly MethodInfo NonStatic_ToLower = StringType.GetMethod("ToLower", Array.Empty<Type>());
+        private static readonly MethodInfo NonStatic_ToUpper = StringType.GetMethod("ToUpper", Array.Empty<Type>());
 
-        private static readonly MethodInfo NonStatic_Trim = stringType.GetMethod("Trim", Array.Empty<Type>());
-        private static readonly MethodInfo NonStatic_TrimStart = stringType.GetMethod("TrimStart", Array.Empty<Type>());
-        private static readonly MethodInfo NonStatic_TrimEnd = stringType.GetMethod("TrimEnd", Array.Empty<Type>());
+        private static readonly MethodInfo NonStatic_Trim = StringType.GetMethod("Trim", Array.Empty<Type>());
+        private static readonly MethodInfo NonStatic_TrimStart = StringType.GetMethod("TrimStart", Array.Empty<Type>());
+        private static readonly MethodInfo NonStatic_TrimEnd = StringType.GetMethod("TrimEnd", Array.Empty<Type>());
 
-        private static readonly MethodInfo NonStatic_StartsWith_Value = stringType.GetMethod("StartsWith", new[] { typeof(string) });
-        private static readonly MethodInfo NonStatic_EndsWith_Value = stringType.GetMethod("EndsWith", new[] { typeof(string) });
+        private static readonly MethodInfo NonStatic_StartsWith_Value = StringType.GetMethod("StartsWith", new[] { StringType });
+        private static readonly MethodInfo NonStatic_EndsWith_Value = StringType.GetMethod("EndsWith", new[] { StringType });
 
-        private static readonly MethodInfo NonStatic_Substring_StartIndex = stringType.GetMethod("Substring", new[] { typeof(int) });
-        private static readonly MethodInfo NonStatic_Substring_StartIndex_Length = stringType.GetMethod("Substring", new[] { typeof(int), typeof(int) });
+        private static readonly MethodInfo NonStatic_Substring_StartIndex = StringType.GetMethod("Substring", new[] { IntType });
+        private static readonly MethodInfo NonStatic_Substring_StartIndex_Length = StringType.GetMethod("Substring", new[] { IntType, IntType });
 
-        private static readonly MethodInfo Static_IsNullOrEmpty = stringType.GetMethod("IsNullOrEmpty");
-        private static readonly MethodInfo Static_IsNullOrWhiteSpace = stringType.GetMethod("IsNullOrWhiteSpace");
+        private static readonly MethodInfo Static_IsNullOrEmpty = StringType.GetMethod("IsNullOrEmpty");
+        private static readonly MethodInfo Static_IsNullOrWhiteSpace = StringType.GetMethod("IsNullOrWhiteSpace");
         //private static readonly MethodInfo Static_Concat = stringType.GetMethod("Concat");
         //private static readonly MethodInfo Static_Join = stringType.GetMethod("Join");
 
@@ -57,7 +59,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
                 throw new ArgumentNullException(nameof(parameters));
             }
 
-            if (methodCallExpression.Method.DeclaringType != stringType)
+            if (methodCallExpression.Method.DeclaringType != StringType)
             {
                 result = default;
 
@@ -105,7 +107,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
         private bool TryProcessNonStaticStringMethodInvocation(MethodCallExpression methodCallExpression, MethodInfo methodInfo, ScriptParameterDictionary parameters, out string result)
         {
             // Methods to implement:
-            // indexof, lastindexof, replace, split
+            // indexof, lastindexof, replace (!must do with "/chars/g", but must escape regex control characters!), split, equals, compareTo
             var argumentList = new List<string>();
 
             string mappedMethodName = null;

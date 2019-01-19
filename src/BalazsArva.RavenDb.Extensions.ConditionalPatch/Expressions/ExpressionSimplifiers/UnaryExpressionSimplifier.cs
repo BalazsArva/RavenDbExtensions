@@ -19,6 +19,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionS
                 {
                     Expression convertExpression;
 
+                    // TODO: Write test for this case!
                     // If we encounter a conversion, we need to perform the original conversion first before forcing every type into Object.
                     // If we did something like "10 (int) < 10 (long)" we would get an error without this when simplifying the binary operation
                     // because the compiler generates a conversion because of the operator but here we would discard it if we didn't include the
