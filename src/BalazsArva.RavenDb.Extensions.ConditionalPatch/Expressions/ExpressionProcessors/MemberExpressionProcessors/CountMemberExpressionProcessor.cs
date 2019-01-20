@@ -36,6 +36,18 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
             // TODO: Tests
             if (memberExpression.Member is PropertyInfo propertyInfo)
             {
+                if (IsDictionaryCountAccess(propertyInfo))
+                {
+                    // Dictionaries are mapped to object literals based on their keys when they are serialized to JSON,
+                    // so we can't use the .length as we would with a regular collection. But there are as many items
+                    // in a dictionary as there are keys, so we need find the number of keys to resolve the expression.
+                    var ownerExpressionString = ExpressionParser.CreateJsScriptFromExpression(memberExpression.Expression, parameters);
+
+                    // TODO: Check whether RavenDB provides a magic property for Dictionary key collections.
+                    result = $"Object.keys({ownerExpressionString}).length";
+                    return true;
+                }
+
                 if (IsDictionaryKeysCollectionCountAccess(memberExpression, propertyInfo))
                 {
                     // We need to navigate one level further up (i.e. doc.MyDictionary.Keys becomes doc.MyDictionary)
@@ -46,7 +58,6 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
 
                     // TODO: Check whether RavenDB provides a magic property for Dictionary key collections.
                     result = $"Object.keys({ownerExpressionString}).length";
-
                     return true;
                 }
 
@@ -60,7 +71,6 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
 
                     // TODO: Check whether RavenDB provides a magic property for Dictionary value collections.
                     result = $"Object.values({ownerExpressionString}).length";
-
                     return true;
                 }
 
@@ -74,6 +84,28 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
             }
 
             result = default;
+            return false;
+        }
+
+        private bool IsDictionaryCountAccess(PropertyInfo propertyInfo)
+        {
+            if (propertyInfo.Name != "Count")
+            {
+                return false;
+            }
+
+            var memberOwnerType = propertyInfo.DeclaringType;
+            if (memberOwnerType.IsGenericType)
+            {
+                memberOwnerType = memberOwnerType.GetGenericTypeDefinition();
+            }
+
+            // TODO: Handle when it is not the default Dictionary, but an IDictionary
+            if (memberOwnerType == typeof(Dictionary<,>))
+            {
+                return true;
+            }
+
             return false;
         }
 
