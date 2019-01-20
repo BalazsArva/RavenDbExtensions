@@ -30,4 +30,4 @@ While the RavenDB Patch API exposes convenience C# methods for patching document
         // Other property updates ...
     }
     
-It will then use this script to send a custom, parameterited patch request to the database so the condition can be evaluated there instead of in the client app.
+It will then use this script to send a custom, parameterized patch request to the database so the condition can be evaluated there instead of in the client app.
