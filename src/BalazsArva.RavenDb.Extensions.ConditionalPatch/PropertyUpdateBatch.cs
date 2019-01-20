@@ -14,14 +14,14 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch
 
         public PropertyUpdateBatch<TDocument> Add<TProperty>(Expression<Func<TDocument, TProperty>> memberSelector, TProperty newValue)
         {
-            if (memberSelector is MemberExpression memberExpression)
+            if (memberSelector.Body is MemberExpression memberExpression)
             {
                 propertyUpdates.Add(new PropertyUpdateDescriptor<TProperty>(memberExpression, newValue));
 
                 return this;
             }
 
-            throw new ArgumentException($"The parameter '{nameof(memberSelector)}' must be a {nameof(MemberExpression)}.", nameof(memberSelector));
+            throw new ArgumentException($"The body of the parameter '{nameof(memberSelector)}' must be a {nameof(MemberExpression)}.", nameof(memberSelector));
         }
 
         public PropertyUpdateDescriptor[] CreateBatch()

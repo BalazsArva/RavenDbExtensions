@@ -33,6 +33,13 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Sandbox
             PrintCondition(doc => doc.Dictionary.Keys.Count > 0);
             PrintCondition(doc => doc.Dictionary.Values.Count > 0);
 
+            var script = PatchScriptBuilder.CreateConditionalPatchScript(
+                new PropertyUpdateBatch<TestDocument>()
+                    .Add(doc => doc.LastKnownChangeId, dummyChangeId2)
+                    .CreateBatch(),
+                (TestDocument doc) => doc.LastKnownChangeId < dummyChangeId2,
+                new ScriptParameterDictionary());
+
             Console.WriteLine("Press any key to exit...");
             Console.ReadKey();
         }
