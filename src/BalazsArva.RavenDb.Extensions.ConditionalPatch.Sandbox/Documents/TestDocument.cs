@@ -8,6 +8,8 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Sandbox.Documents
 
         public long LastKnownChangeId { get; set; }
 
+        public long? NullableLong { get; set; }
+
         public long[] RecordedChangeIds { get; set; }
 
         public List<string> ReferenceIds { get; set; }

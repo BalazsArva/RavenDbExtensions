@@ -11,18 +11,14 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
         private readonly IEnumerable<IExpressionProcessor<MemberExpression>> expressionProcessors;
 
         // TODO: Handle properties which require special treatment, such as:
-        // - Nullable<>.HasValue
-        // - Nullable<>.Value
         // - DateTime(Offset).(Year|Month|Day|Hour|Minute|Second|Millisecond|etc.)
-        // - String length (if handled differently from array length)
-        // - ICollection.Count
-        // - String.Length
         public MemberExpressionProcessor()
         {
             // TODO: Consider LINQ extension methods as well!
             expressionProcessors = new List<IExpressionProcessor<MemberExpression>>
             {
                 new StringMemberExpressionProcessor(),
+                new NullableMemberExpressionProcessor(),
                 new CountMemberExpressionProcessor(),
 
                 // This must be the last one, otherwise this will wrongly return the specially treated ones as well!

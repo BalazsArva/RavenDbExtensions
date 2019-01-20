@@ -6,6 +6,8 @@
 
         public int SomeInt { get; set; }
 
+        public long? SomeNullableLong { get; set; }
+
         public int[] SomeIntArray { get; set; }
     }
 }
