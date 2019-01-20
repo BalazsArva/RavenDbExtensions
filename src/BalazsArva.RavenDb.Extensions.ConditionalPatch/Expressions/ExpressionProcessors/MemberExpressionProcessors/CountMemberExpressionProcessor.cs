@@ -34,20 +34,114 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
             }
 
             // TODO: Tests
-            // TODO: For Dictionary<TKey,TValue>, need to handle Keys and Values collections too!
-            if (memberExpression.Member is PropertyInfo propertyInfo && IsSpeciallyTreatedCountProperty(propertyInfo))
+            if (memberExpression.Member is PropertyInfo propertyInfo)
             {
-                var ownerExpressionString = ExpressionParser.CreateJsScriptFromExpression(memberExpression.Expression, parameters);
+                if (IsDictionaryKeysCollectionCountAccess(memberExpression, propertyInfo))
+                {
+                    // We need to navigate one level further up (i.e. doc.MyDictionary.Keys becomes doc.MyDictionary)
+                    // because dictionaries are mapped to object literals with the respective keys when they become
+                    // JSON, so the Keys segment becomes invalid.
+                    var parentMemberExpression = ((MemberExpression)memberExpression.Expression).Expression;
+                    var ownerExpressionString = ExpressionParser.CreateJsScriptFromExpression(parentMemberExpression, parameters);
 
-                result = $"{ownerExpressionString}.length";
-                return true;
+                    // TODO: Check whether RavenDB provides a magic property for Dictionary key collections.
+                    result = $"Object.keys({ownerExpressionString}).length";
+
+                    return true;
+                }
+
+                if (IsDictionaryValuesCollectionCountAccess(memberExpression, propertyInfo))
+                {
+                    // We need to navigate one level further up (i.e. doc.MyDictionary.Values becomes doc.MyDictionary)
+                    // because dictionaries are mapped to object literals with the respective keys when they become
+                    // JSON, so the Values segment becomes invalid.
+                    var parentMemberExpression = ((MemberExpression)memberExpression.Expression).Expression;
+                    var ownerExpressionString = ExpressionParser.CreateJsScriptFromExpression(parentMemberExpression, parameters);
+
+                    // TODO: Check whether RavenDB provides a magic property for Dictionary value collections.
+                    result = $"Object.values({ownerExpressionString}).length";
+
+                    return true;
+                }
+
+                if (IsSpeciallyTreatedCountPropertyAccess(propertyInfo))
+                {
+                    var ownerExpressionString = ExpressionParser.CreateJsScriptFromExpression(memberExpression.Expression, parameters);
+
+                    result = $"{ownerExpressionString}.length";
+                    return true;
+                }
             }
 
             result = default;
             return false;
         }
 
-        private bool IsSpeciallyTreatedCountProperty(PropertyInfo propertyInfo)
+        private bool IsDictionaryKeysCollectionCountAccess(MemberExpression memberExpression, PropertyInfo propertyInfo)
+        {
+            if (propertyInfo.Name != "Count")
+            {
+                return false;
+            }
+
+            if (memberExpression.Expression is MemberExpression parentMemberExpression)
+            {
+                if (parentMemberExpression.Member is PropertyInfo parentPropertyInfo)
+                {
+                    if (parentPropertyInfo.Name != "Keys")
+                    {
+                        return false;
+                    }
+
+                    var memberOwnerType = parentPropertyInfo.DeclaringType;
+                    if (memberOwnerType.IsGenericType)
+                    {
+                        memberOwnerType = memberOwnerType.GetGenericTypeDefinition();
+                    }
+
+                    if (memberOwnerType == typeof(Dictionary<,>))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private bool IsDictionaryValuesCollectionCountAccess(MemberExpression memberExpression, PropertyInfo propertyInfo)
+        {
+            if (propertyInfo.Name != "Count")
+            {
+                return false;
+            }
+
+            if (memberExpression.Expression is MemberExpression parentMemberExpression)
+            {
+                if (parentMemberExpression.Member is PropertyInfo parentPropertyInfo)
+                {
+                    if (parentPropertyInfo.Name != "Values")
+                    {
+                        return false;
+                    }
+
+                    var memberOwnerType = parentPropertyInfo.DeclaringType;
+                    if (memberOwnerType.IsGenericType)
+                    {
+                        memberOwnerType = memberOwnerType.GetGenericTypeDefinition();
+                    }
+
+                    if (memberOwnerType == typeof(Dictionary<,>))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private bool IsSpeciallyTreatedCountPropertyAccess(PropertyInfo propertyInfo)
         {
             if (propertyInfo.Name != "Count")
             {

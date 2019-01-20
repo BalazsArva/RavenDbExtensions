@@ -15,5 +15,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Sandbox.Documents
         public List<string> ReferenceIds { get; set; }
 
         public HashSet<string> InvolvedUsers { get; set; }
+
+        public Dictionary<string, string> Dictionary { get; set; }
     }
 }
