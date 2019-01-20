@@ -11,6 +11,13 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
 {
     public class CountMemberExpressionProcessor : IExpressionProcessor<MemberExpression>
     {
+        private const string CountPropertyName = "Count";
+        private const string DictionaryKeysPropertyName = "Keys";
+        private const string DictionaryValuesPropertyName = "Values";
+
+        private static readonly Type GenericIDictionaryInterfaceType = typeof(IDictionary<,>);
+        private static readonly Type GenericDictionaryImplementationType = typeof(Dictionary<,>);
+
         // Every collection type which resides in the System.Collections or System.Collections.Generic namespaces and
         // which has a Count property directly or indirectly implements either of these interfaces. These all must be
         // listed because these do not implement one another.
@@ -89,52 +96,47 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
 
         private bool IsDictionaryCountAccess(PropertyInfo propertyInfo)
         {
-            if (propertyInfo.Name != "Count")
+            if (propertyInfo.Name != CountPropertyName)
             {
                 return false;
             }
 
-            var memberOwnerType = propertyInfo.DeclaringType;
-            if (memberOwnerType.IsGenericType)
-            {
-                memberOwnerType = memberOwnerType.GetGenericTypeDefinition();
-            }
-
-            // TODO: Handle when it is not the default Dictionary, but an IDictionary
-            if (memberOwnerType == typeof(Dictionary<,>))
-            {
-                return true;
-            }
-
-            return false;
+            // TODO: Write tests where we check that this works for any IDictionary<TKey, TValue> implementation.
+            return propertyInfo
+                .DeclaringType
+                .GetInterfaces()
+                .Select(i => i.IsGenericType ? i.GetGenericTypeDefinition() : i)
+                .Any(i => i == GenericIDictionaryInterfaceType);
         }
 
         private bool IsDictionaryKeysCollectionCountAccess(MemberExpression memberExpression, PropertyInfo propertyInfo)
         {
-            if (propertyInfo.Name != "Count")
+            if (propertyInfo.Name != CountPropertyName)
             {
                 return false;
             }
 
-            if (memberExpression.Expression is MemberExpression parentMemberExpression)
+            if (memberExpression.Expression is MemberExpression parentMemberExpression &&
+                parentMemberExpression.Member is PropertyInfo parentPropertyInfo)
             {
-                if (parentMemberExpression.Member is PropertyInfo parentPropertyInfo)
+                if (parentPropertyInfo.Name != DictionaryKeysPropertyName)
                 {
-                    if (parentPropertyInfo.Name != "Keys")
-                    {
-                        return false;
-                    }
+                    return false;
+                }
 
-                    var memberOwnerType = parentPropertyInfo.DeclaringType;
-                    if (memberOwnerType.IsGenericType)
-                    {
-                        memberOwnerType = memberOwnerType.GetGenericTypeDefinition();
-                    }
+                var memberOwnerType = parentPropertyInfo.DeclaringType;
+                if (memberOwnerType.IsGenericType)
+                {
+                    memberOwnerType = memberOwnerType.GetGenericTypeDefinition();
+                }
 
-                    if (memberOwnerType == typeof(Dictionary<,>))
-                    {
-                        return true;
-                    }
+                // Unlike in IsDictionaryCountAccess, here we shouldn't check against the interface but the implementation
+                // because the Keys collection is specific to the System.Collections.Generic.Dictionary<TKey, TValue>
+                // implementation (it is a nested class of it).
+                // TODO: Write tests where we check that this only works for the Dictionary<TKey, TValue> implementation and not an arbitrary IDictionary<TKey, TValue>
+                if (memberOwnerType == GenericDictionaryImplementationType)
+                {
+                    return true;
                 }
             }
 
@@ -143,30 +145,32 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
 
         private bool IsDictionaryValuesCollectionCountAccess(MemberExpression memberExpression, PropertyInfo propertyInfo)
         {
-            if (propertyInfo.Name != "Count")
+            if (propertyInfo.Name != CountPropertyName)
             {
                 return false;
             }
 
-            if (memberExpression.Expression is MemberExpression parentMemberExpression)
+            if (memberExpression.Expression is MemberExpression parentMemberExpression &&
+                parentMemberExpression.Member is PropertyInfo parentPropertyInfo)
             {
-                if (parentMemberExpression.Member is PropertyInfo parentPropertyInfo)
+                if (parentPropertyInfo.Name != DictionaryValuesPropertyName)
                 {
-                    if (parentPropertyInfo.Name != "Values")
-                    {
-                        return false;
-                    }
+                    return false;
+                }
 
-                    var memberOwnerType = parentPropertyInfo.DeclaringType;
-                    if (memberOwnerType.IsGenericType)
-                    {
-                        memberOwnerType = memberOwnerType.GetGenericTypeDefinition();
-                    }
+                var memberOwnerType = parentPropertyInfo.DeclaringType;
+                if (memberOwnerType.IsGenericType)
+                {
+                    memberOwnerType = memberOwnerType.GetGenericTypeDefinition();
+                }
 
-                    if (memberOwnerType == typeof(Dictionary<,>))
-                    {
-                        return true;
-                    }
+                // Unlike in IsDictionaryCountAccess, here we shouldn't check against the interface but the implementation
+                // because the Values collection is specific to the System.Collections.Generic.Dictionary<TKey, TValue>
+                // implementation (it is a nested class of it).
+                // TODO: Write tests where we check that this only works for the Dictionary<TKey, TValue> implementation and not an arbitrary IDictionary<TKey, TValue>
+                if (memberOwnerType == GenericDictionaryImplementationType)
+                {
+                    return true;
                 }
             }
 
@@ -175,12 +179,13 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
 
         private bool IsSpeciallyTreatedCountPropertyAccess(PropertyInfo propertyInfo)
         {
-            if (propertyInfo.Name != "Count")
+            if (propertyInfo.Name != CountPropertyName)
             {
                 return false;
             }
 
-            return propertyInfo.DeclaringType
+            return propertyInfo
+                .DeclaringType
                 .GetInterfaces()
                 .Select(i => i.IsGenericType ? i.GetGenericTypeDefinition() : i)
                 .Any(i => KnownTypes.Contains(i));
