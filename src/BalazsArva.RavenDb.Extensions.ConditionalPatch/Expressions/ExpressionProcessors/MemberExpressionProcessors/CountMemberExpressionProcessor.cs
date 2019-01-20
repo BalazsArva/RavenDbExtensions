@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.Abstractions;
@@ -10,13 +11,14 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
 {
     public class CountMemberExpressionProcessor : IExpressionProcessor<MemberExpression>
     {
-        // TODO: Consider if there is anything else (ReadOnly variants?)
+        // Every collection type which resides in the System.Collections or System.Collections.Generic namespaces and
+        // which has a Count property directly or indirectly implements either of these interfaces. These all must be
+        // listed because these do not implement one another.
         private static readonly HashSet<Type> KnownTypes = new HashSet<Type>
         {
             typeof(ICollection),
-            typeof(List<>),
-            typeof(HashSet<>),
-            typeof(Dictionary<,>)
+            typeof(ICollection<>),
+            typeof(IReadOnlyCollection<>)
         };
 
         public bool TryProcess(MemberExpression memberExpression, ScriptParameterDictionary parameters, out string result)
@@ -33,25 +35,29 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
 
             // TODO: Tests
             // TODO: For Dictionary<TKey,TValue>, need to handle Keys and Values collections too!
-            if (memberExpression.Member is PropertyInfo propertyInfo)
+            if (memberExpression.Member is PropertyInfo propertyInfo && IsSpeciallyTreatedCountProperty(propertyInfo))
             {
-                var memberOwnerType = propertyInfo.DeclaringType;
-                if (memberOwnerType.IsGenericType)
-                {
-                    memberOwnerType = memberOwnerType.GetGenericTypeDefinition();
-                }
+                var ownerExpressionString = ExpressionParser.CreateJsScriptFromExpression(memberExpression.Expression, parameters);
 
-                if (KnownTypes.Contains(memberOwnerType) && propertyInfo.Name == "Count")
-                {
-                    var ownerExpressionString = ExpressionParser.CreateJsScriptFromExpression(memberExpression.Expression, parameters);
-
-                    result = $"{ownerExpressionString}.length";
-                    return true;
-                }
+                result = $"{ownerExpressionString}.length";
+                return true;
             }
 
             result = default;
             return false;
+        }
+
+        private bool IsSpeciallyTreatedCountProperty(PropertyInfo propertyInfo)
+        {
+            if (propertyInfo.Name != "Count")
+            {
+                return false;
+            }
+
+            return propertyInfo.DeclaringType
+                .GetInterfaces()
+                .Select(i => i.IsGenericType ? i.GetGenericTypeDefinition() : i)
+                .Any(i => KnownTypes.Contains(i));
         }
     }
 }
