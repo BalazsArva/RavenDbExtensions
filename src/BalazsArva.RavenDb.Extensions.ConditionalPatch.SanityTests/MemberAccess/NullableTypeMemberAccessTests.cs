@@ -5,10 +5,10 @@ using BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.TestDocuments;
 using BalazsArva.RavenDb.Extensions.ConditionalPatch.Utilitites;
 using NUnit.Framework;
 
-namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.Regression
+namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.MemberAccess
 {
     [TestFixture]
-    public class NullableTypePredicateRegressionTests
+    public class NullableTypeMemberAccessTests
     {
         [Test]
         public void Predicate_Nullable_TestAgainstNull()
