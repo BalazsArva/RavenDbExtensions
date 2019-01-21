@@ -19,6 +19,10 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
             {
                 new StringMemberExpressionProcessor(),
                 new NullableMemberExpressionProcessor(),
+
+                // This must come before CollectionCountMemberExpressionProcessor
+                new DictionaryMemberExpressionProcessor(),
+
                 new CountMemberExpressionProcessor(),
 
                 // This must be the last one, otherwise this will wrongly return the specially treated ones as well!
