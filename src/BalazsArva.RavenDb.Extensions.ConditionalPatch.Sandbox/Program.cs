@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
-using BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions;
+using BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.Abstractions;
+using BalazsArva.RavenDb.Extensions.ConditionalPatch.Factories;
 using BalazsArva.RavenDb.Extensions.ConditionalPatch.Sandbox.Documents;
 using BalazsArva.RavenDb.Extensions.ConditionalPatch.Utilitites;
 
@@ -8,6 +9,9 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Sandbox
 {
     internal class Program
     {
+        private static IExpressionProcessorPipeline expressionProcessorPipeline = ExpressionProcessorPipelineFactory.CreateExpressionProcessorPipeline();
+        private static IPatchScriptBuilder patchScriptBuilder = PatchScriptBuilderFactory.CreatePatchScriptBuilder();
+
         private static void Main(string[] args)
         {
             var dummyChangeId1 = 1000;
@@ -33,7 +37,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Sandbox
             PrintCondition(doc => doc.Dictionary.Keys.Count > 0);
             PrintCondition(doc => doc.Dictionary.Values.Count > 0);
 
-            var script = PatchScriptBuilder.CreateConditionalPatchScript(
+            var script = patchScriptBuilder.CreateConditionalPatchScript(
                 new PropertyUpdateBatch<TestDocument>()
                     .Add(doc => doc.LastKnownChangeId, dummyChangeId2)
                     .CreateBatch(),
@@ -57,7 +61,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Sandbox
             Console.WriteLine();
 
             var parameters = new ScriptParameterDictionary();
-            var script = ExpressionParser.CreateJsScriptFromExpression(expression, parameters);
+            var script = expressionProcessorPipeline.ProcessExpression(expression, parameters);
 
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("Created JavaScript expression:");

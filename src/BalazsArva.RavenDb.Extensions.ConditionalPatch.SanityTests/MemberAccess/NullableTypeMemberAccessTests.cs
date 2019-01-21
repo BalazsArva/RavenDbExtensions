@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Linq.Expressions;
-using BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions;
+using BalazsArva.RavenDb.Extensions.ConditionalPatch.Factories;
 using BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.TestDocuments;
 using BalazsArva.RavenDb.Extensions.ConditionalPatch.Utilitites;
 using NUnit.Framework;
 
-namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.Regression
+namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.MemberAccess
 {
     [TestFixture]
-    public class NullableTypePredicateRegressionTests
+    public class NullableTypeMemberAccessTests
     {
         [Test]
         public void Predicate_Nullable_TestAgainstNull()
@@ -64,8 +64,10 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.Regression
 
         private (string script, ScriptParameterDictionary parameters) GetParsedJavaScript<TProperty>(Expression<Func<TestDocument, TProperty>> expression)
         {
+            var processor = ExpressionProcessorPipelineFactory.CreateExpressionProcessorPipeline();
+
             var parameters = new ScriptParameterDictionary();
-            var script = ExpressionParser.CreateJsScriptFromExpression(expression, parameters);
+            var script = processor.ProcessExpression(expression, parameters);
 
             return (script, parameters);
         }

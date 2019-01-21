@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
-using BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions;
+using BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.Abstractions;
+using BalazsArva.RavenDb.Extensions.ConditionalPatch.Factories;
 using BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.TestDocuments;
 using BalazsArva.RavenDb.Extensions.ConditionalPatch.Utilitites;
 using NUnit.Framework;
@@ -10,13 +11,21 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.BinaryOpera
     [TestFixture]
     public class IntegerBinaryOperationTests
     {
+        private IExpressionProcessorPipeline expressionProcessorPipeline;
+
+        [SetUp]
+        public void Setup()
+        {
+            expressionProcessorPipeline = ExpressionProcessorPipelineFactory.CreateExpressionProcessorPipeline();
+        }
+
         [Test]
         public void BinaryOps_Integers_Add()
         {
             var expression = LambdaExpression(doc => doc.SomeInt + 1);
             var parameters = new ScriptParameterDictionary();
 
-            var result = ExpressionParser.CreateJsScriptFromExpression(expression, parameters);
+            var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
 
             Assert.AreEqual(
                 "(this.SomeInt + args.__param1)",
@@ -32,7 +41,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.BinaryOpera
             var expression = LambdaExpression(doc => doc.SomeInt & 1);
             var parameters = new ScriptParameterDictionary();
 
-            var result = ExpressionParser.CreateJsScriptFromExpression(expression, parameters);
+            var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
 
             Assert.AreEqual(
                 "(this.SomeInt & args.__param1)",
@@ -48,7 +57,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.BinaryOpera
             var expression = LambdaExpression(doc => doc.SomeInt / 1);
             var parameters = new ScriptParameterDictionary();
 
-            var result = ExpressionParser.CreateJsScriptFromExpression(expression, parameters);
+            var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
 
             Assert.AreEqual(
                 "(this.SomeInt / args.__param1)",
@@ -64,7 +73,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.BinaryOpera
             var expression = LambdaExpression(doc => doc.SomeInt ^ 1);
             var parameters = new ScriptParameterDictionary();
 
-            var result = ExpressionParser.CreateJsScriptFromExpression(expression, parameters);
+            var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
 
             Assert.AreEqual(
                 "(this.SomeInt ^ args.__param1)",
@@ -80,7 +89,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.BinaryOpera
             var expression = LambdaExpression(doc => doc.SomeInt % 1);
             var parameters = new ScriptParameterDictionary();
 
-            var result = ExpressionParser.CreateJsScriptFromExpression(expression, parameters);
+            var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
 
             Assert.AreEqual(
                 "(this.SomeInt % args.__param1)",
@@ -96,7 +105,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.BinaryOpera
             var expression = LambdaExpression(doc => doc.SomeInt * 1);
             var parameters = new ScriptParameterDictionary();
 
-            var result = ExpressionParser.CreateJsScriptFromExpression(expression, parameters);
+            var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
 
             Assert.AreEqual(
                 "(this.SomeInt * args.__param1)",
@@ -112,7 +121,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.BinaryOpera
             var expression = LambdaExpression(doc => doc.SomeInt | 1);
             var parameters = new ScriptParameterDictionary();
 
-            var result = ExpressionParser.CreateJsScriptFromExpression(expression, parameters);
+            var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
 
             Assert.AreEqual(
                 "(this.SomeInt | args.__param1)",
@@ -128,7 +137,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.BinaryOpera
             var expression = LambdaExpression(doc => doc.SomeInt - 1);
             var parameters = new ScriptParameterDictionary();
 
-            var result = ExpressionParser.CreateJsScriptFromExpression(expression, parameters);
+            var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
 
             Assert.AreEqual(
                 "(this.SomeInt - args.__param1)",
@@ -147,7 +156,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.BinaryOpera
 
             var parameters = new ScriptParameterDictionary();
 
-            var result = ExpressionParser.CreateJsScriptFromExpression(expression, parameters);
+            var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
 
             Assert.AreEqual(
                 "(this.SomeInt = args.__param1)",
@@ -166,7 +175,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.BinaryOpera
 
             var parameters = new ScriptParameterDictionary();
 
-            var result = ExpressionParser.CreateJsScriptFromExpression(expression, parameters);
+            var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
 
             Assert.AreEqual(
                 "(this.SomeInt += args.__param1)",
@@ -185,7 +194,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.BinaryOpera
 
             var parameters = new ScriptParameterDictionary();
 
-            var result = ExpressionParser.CreateJsScriptFromExpression(expression, parameters);
+            var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
 
             Assert.AreEqual(
                 "(this.SomeInt &= args.__param1)",
@@ -204,7 +213,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.BinaryOpera
 
             var parameters = new ScriptParameterDictionary();
 
-            var result = ExpressionParser.CreateJsScriptFromExpression(expression, parameters);
+            var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
 
             Assert.AreEqual(
                 "(this.SomeInt /= args.__param1)",
@@ -223,7 +232,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.BinaryOpera
 
             var parameters = new ScriptParameterDictionary();
 
-            var result = ExpressionParser.CreateJsScriptFromExpression(expression, parameters);
+            var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
 
             Assert.AreEqual(
                 "(this.SomeInt ^= args.__param1)",
@@ -242,7 +251,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.BinaryOpera
 
             var parameters = new ScriptParameterDictionary();
 
-            var result = ExpressionParser.CreateJsScriptFromExpression(expression, parameters);
+            var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
 
             Assert.AreEqual(
                 "(this.SomeInt %= args.__param1)",
@@ -261,7 +270,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.BinaryOpera
 
             var parameters = new ScriptParameterDictionary();
 
-            var result = ExpressionParser.CreateJsScriptFromExpression(expression, parameters);
+            var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
 
             Assert.AreEqual(
                 "(this.SomeInt *= args.__param1)",
@@ -280,7 +289,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.BinaryOpera
 
             var parameters = new ScriptParameterDictionary();
 
-            var result = ExpressionParser.CreateJsScriptFromExpression(expression, parameters);
+            var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
 
             Assert.AreEqual(
                 "(this.SomeInt |= args.__param1)",
@@ -299,7 +308,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.BinaryOpera
 
             var parameters = new ScriptParameterDictionary();
 
-            var result = ExpressionParser.CreateJsScriptFromExpression(expression, parameters);
+            var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
 
             Assert.AreEqual(
                 "(this.SomeInt -= args.__param1)",
@@ -315,7 +324,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.BinaryOpera
             var expression = LambdaExpression(doc => doc.SomeInt < 0);
             var parameters = new ScriptParameterDictionary();
 
-            var result = ExpressionParser.CreateJsScriptFromExpression(expression, parameters);
+            var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
 
             Assert.AreEqual(
                 "(this.SomeInt < args.__param1)",
@@ -331,7 +340,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.BinaryOpera
             var expression = LambdaExpression(doc => doc.SomeInt <= 0);
             var parameters = new ScriptParameterDictionary();
 
-            var result = ExpressionParser.CreateJsScriptFromExpression(expression, parameters);
+            var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
 
             Assert.AreEqual(
                 "(this.SomeInt <= args.__param1)",
@@ -347,7 +356,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.BinaryOpera
             var expression = LambdaExpression(doc => doc.SomeInt > 0);
             var parameters = new ScriptParameterDictionary();
 
-            var result = ExpressionParser.CreateJsScriptFromExpression(expression, parameters);
+            var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
 
             Assert.AreEqual(
                 "(this.SomeInt > args.__param1)",
@@ -363,7 +372,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.BinaryOpera
             var expression = LambdaExpression(doc => doc.SomeInt >= 0);
             var parameters = new ScriptParameterDictionary();
 
-            var result = ExpressionParser.CreateJsScriptFromExpression(expression, parameters);
+            var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
 
             Assert.AreEqual(
                 "(this.SomeInt >= args.__param1)",
@@ -379,7 +388,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.BinaryOpera
             var expression = LambdaExpression(doc => doc.SomeInt == 0);
             var parameters = new ScriptParameterDictionary();
 
-            var result = ExpressionParser.CreateJsScriptFromExpression(expression, parameters);
+            var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
 
             Assert.AreEqual(
                 "(this.SomeInt == args.__param1)",
@@ -395,7 +404,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.BinaryOpera
             var expression = LambdaExpression(doc => doc.SomeInt != 0);
             var parameters = new ScriptParameterDictionary();
 
-            var result = ExpressionParser.CreateJsScriptFromExpression(expression, parameters);
+            var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
 
             Assert.AreEqual(
                 "(this.SomeInt != args.__param1)",

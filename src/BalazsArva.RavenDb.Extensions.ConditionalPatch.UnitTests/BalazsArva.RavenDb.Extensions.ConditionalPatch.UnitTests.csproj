@@ -10,12 +10,17 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
+    <PackageReference Include="Moq" Version="4.10.1" />
     <PackageReference Include="NUnit" Version="3.11.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.12.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\BalazsArva.RavenDb.Extensions.ConditionalPatch\BalazsArva.RavenDb.Extensions.ConditionalPatch.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="ExpressionProcessorTests\" />
   </ItemGroup>
 
 </Project>

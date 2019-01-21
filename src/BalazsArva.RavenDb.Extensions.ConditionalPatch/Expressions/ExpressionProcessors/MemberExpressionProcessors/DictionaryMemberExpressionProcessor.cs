@@ -17,6 +17,13 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
         private static readonly Type GenericIDictionaryInterfaceType = typeof(IDictionary<,>);
         private static readonly Type GenericDictionaryImplementationType = typeof(Dictionary<,>);
 
+        private readonly IExpressionProcessorPipeline _expressionProcessorPipeline;
+
+        public DictionaryMemberExpressionProcessor(IExpressionProcessorPipeline expressionProcessorPipeline)
+        {
+            _expressionProcessorPipeline = expressionProcessorPipeline ?? throw new ArgumentNullException(nameof(expressionProcessorPipeline));
+        }
+
         public bool TryProcess(MemberExpression memberExpression, ScriptParameterDictionary parameters, out string result)
         {
             if (memberExpression == null)
@@ -37,7 +44,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
                     // Dictionaries are mapped to object literals based on their keys when they are serialized to JSON,
                     // so we can't use the .length as we would with a regular collection. But there are as many items
                     // in a dictionary as there are keys, so we need find the number of keys to resolve the expression.
-                    var ownerExpressionString = ExpressionParser.CreateJsScriptFromExpression(memberExpression.Expression, parameters);
+                    var ownerExpressionString = _expressionProcessorPipeline.ProcessExpression(memberExpression.Expression, parameters);
 
                     // TODO: Check whether RavenDB provides a magic property for Dictionary key collections.
                     result = $"Object.keys({ownerExpressionString}).length";
@@ -50,7 +57,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
                     // because dictionaries are mapped to object literals with the respective keys when they become
                     // JSON, so the Keys segment becomes invalid.
                     var parentMemberExpression = ((MemberExpression)memberExpression.Expression).Expression;
-                    var ownerExpressionString = ExpressionParser.CreateJsScriptFromExpression(parentMemberExpression, parameters);
+                    var ownerExpressionString = _expressionProcessorPipeline.ProcessExpression(parentMemberExpression, parameters);
 
                     // TODO: Check whether RavenDB provides a magic property for Dictionary key collections.
                     result = $"Object.keys({ownerExpressionString}).length";
@@ -63,7 +70,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
                     // because dictionaries are mapped to object literals with the respective keys when they become
                     // JSON, so the Values segment becomes invalid.
                     var parentMemberExpression = ((MemberExpression)memberExpression.Expression).Expression;
-                    var ownerExpressionString = ExpressionParser.CreateJsScriptFromExpression(parentMemberExpression, parameters);
+                    var ownerExpressionString = _expressionProcessorPipeline.ProcessExpression(parentMemberExpression, parameters);
 
                     // TODO: Check whether RavenDB provides a magic property for Dictionary value collections.
                     result = $"Object.values({ownerExpressionString}).length";

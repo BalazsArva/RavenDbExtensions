@@ -8,6 +8,8 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
 {
     public class IntegralTypesMethodCallExpressionProcessor : IExpressionProcessor<MethodCallExpression>
     {
+        private const string ToStringMethodName = "ToString";
+
         private static readonly HashSet<Type> integralTypes = new HashSet<Type>
         {
             typeof(sbyte),
@@ -20,7 +22,12 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
             typeof(ulong)
         };
 
-        private const string ToStringMethodName = "ToString";
+        private readonly IExpressionProcessorPipeline _expressionProcessorPipeline;
+
+        public IntegralTypesMethodCallExpressionProcessor(IExpressionProcessorPipeline expressionProcessorPipeline)
+        {
+            _expressionProcessorPipeline = expressionProcessorPipeline ?? throw new ArgumentNullException(nameof(expressionProcessorPipeline));
+        }
 
         public bool TryProcess(MethodCallExpression methodCallExpression, ScriptParameterDictionary parameters, out string result)
         {
@@ -43,7 +50,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
 
             if (methodCallExpression.Method.Name == ToStringMethodName)
             {
-                var ownerExpressionString = ExpressionParser.CreateJsScriptFromExpression(methodCallExpression.Object, parameters);
+                var ownerExpressionString = _expressionProcessorPipeline.ProcessExpression(methodCallExpression.Object, parameters);
 
                 result = $"{ownerExpressionString}.toString()";
                 return true;

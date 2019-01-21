@@ -6,12 +6,19 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionS
 {
     public class BinaryExpressionSimplifier : IExpressionSimplifier
     {
+        private readonly IExpressionSimplifierPipeline _expressionSimplifierPipeline;
+
+        public BinaryExpressionSimplifier(IExpressionSimplifierPipeline expressionSimplifierPipeline)
+        {
+            _expressionSimplifierPipeline = expressionSimplifierPipeline ?? throw new ArgumentNullException(nameof(expressionSimplifierPipeline));
+        }
+
         public bool TrySimplifyExpression(Expression expression, out Expression result)
         {
             if (expression is BinaryExpression binaryExpression)
             {
-                var simplifiedLeftExpression = ExpressionSimplifier.SimplifyExpression(binaryExpression.Left);
-                var simplifiedRightExpression = ExpressionSimplifier.SimplifyExpression(binaryExpression.Right);
+                var simplifiedLeftExpression = _expressionSimplifierPipeline.ProcessExpression(binaryExpression.Left);
+                var simplifiedRightExpression = _expressionSimplifierPipeline.ProcessExpression(binaryExpression.Right);
 
                 // Both operands could be resolved to a runtime value, perform the binary operation between them.
                 if (simplifiedLeftExpression.NodeType == ExpressionType.Constant &&

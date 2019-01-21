@@ -12,21 +12,26 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
 
         // TODO: Handle properties which require special treatment, such as:
         // - DateTime(Offset).(Year|Month|Day|Hour|Minute|Second|Millisecond|etc.)
-        public MemberExpressionProcessor()
+        public MemberExpressionProcessor(IExpressionProcessorPipeline expressionProcessorPipeline)
         {
+            if (expressionProcessorPipeline == null)
+            {
+                throw new ArgumentNullException(nameof(expressionProcessorPipeline));
+            }
+
             // TODO: Consider LINQ extension methods as well!
             expressionProcessors = new List<IExpressionProcessor<MemberExpression>>
             {
-                new StringMemberExpressionProcessor(),
-                new NullableMemberExpressionProcessor(),
+                new StringMemberExpressionProcessor(expressionProcessorPipeline),
+                new NullableMemberExpressionProcessor(expressionProcessorPipeline),
 
                 // This must come before CollectionCountMemberExpressionProcessor
-                new DictionaryMemberExpressionProcessor(),
+                new DictionaryMemberExpressionProcessor(expressionProcessorPipeline),
 
-                new CollectionCountMemberExpressionProcessor(),
+                new CollectionCountMemberExpressionProcessor(expressionProcessorPipeline),
 
                 // This must be the last one, otherwise this will wrongly return the specially treated ones as well!
-                new HandleAllMemberExpressionProcessor()
+                new HandleAllMemberExpressionProcessor(expressionProcessorPipeline)
             };
         }
 

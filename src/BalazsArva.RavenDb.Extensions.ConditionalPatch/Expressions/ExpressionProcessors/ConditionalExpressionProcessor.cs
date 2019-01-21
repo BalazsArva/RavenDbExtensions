@@ -7,6 +7,13 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
 {
     public class ConditionalExpressionProcessor : IExpressionProcessor
     {
+        private readonly IExpressionProcessorPipeline _expressionProcessorPipeline;
+
+        public ConditionalExpressionProcessor(IExpressionProcessorPipeline expressionProcessorPipeline)
+        {
+            _expressionProcessorPipeline = expressionProcessorPipeline ?? throw new ArgumentNullException(nameof(expressionProcessorPipeline));
+        }
+
         public bool TryProcess(Expression expression, ScriptParameterDictionary parameters, out string result)
         {
             if (expression == null)
@@ -21,9 +28,9 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
 
             if (expression is ConditionalExpression conditionalExpression)
             {
-                var test = ExpressionParser.CreateJsScriptFromExpression(conditionalExpression.Test, parameters);
-                var ifTrue = ExpressionParser.CreateJsScriptFromExpression(conditionalExpression.IfTrue, parameters);
-                var ifFalse = ExpressionParser.CreateJsScriptFromExpression(conditionalExpression.IfFalse, parameters);
+                var test = _expressionProcessorPipeline.ProcessExpression(conditionalExpression.Test, parameters);
+                var ifTrue = _expressionProcessorPipeline.ProcessExpression(conditionalExpression.IfTrue, parameters);
+                var ifFalse = _expressionProcessorPipeline.ProcessExpression(conditionalExpression.IfFalse, parameters);
 
                 result = $"({test} ? {ifTrue} : {ifFalse})";
 

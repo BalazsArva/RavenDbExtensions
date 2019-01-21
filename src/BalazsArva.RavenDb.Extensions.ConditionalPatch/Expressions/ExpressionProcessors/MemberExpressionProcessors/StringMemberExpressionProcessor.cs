@@ -12,6 +12,13 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
 
         private static readonly PropertyInfo NonStatic_Length = StringType.GetProperty("Length");
 
+        private readonly IExpressionProcessorPipeline _expressionProcessorPipeline;
+
+        public StringMemberExpressionProcessor(IExpressionProcessorPipeline expressionProcessorPipeline)
+        {
+            _expressionProcessorPipeline = expressionProcessorPipeline ?? throw new ArgumentNullException(nameof(expressionProcessorPipeline));
+        }
+
         public bool TryProcess(MemberExpression memberExpression, ScriptParameterDictionary parameters, out string result)
         {
             if (memberExpression == null)
@@ -26,7 +33,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
 
             if (memberExpression.Member is PropertyInfo propertyInfo && propertyInfo == NonStatic_Length)
             {
-                var ownerExpressionString = ExpressionParser.CreateJsScriptFromExpression(memberExpression.Expression, parameters);
+                var ownerExpressionString = _expressionProcessorPipeline.ProcessExpression(memberExpression.Expression, parameters);
 
                 result = $"{ownerExpressionString}.length";
                 return true;

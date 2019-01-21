@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.Abstractions;
@@ -7,12 +8,19 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionS
 {
     public class MethodCallExpressionSimplifier : IExpressionSimplifier
     {
+        private readonly IExpressionSimplifierPipeline _expressionSimplifierPipeline;
+
+        public MethodCallExpressionSimplifier(IExpressionSimplifierPipeline expressionSimplifierPipeline)
+        {
+            _expressionSimplifierPipeline = expressionSimplifierPipeline ?? throw new ArgumentNullException(nameof(expressionSimplifierPipeline));
+        }
+
         public bool TrySimplifyExpression(Expression expression, out Expression result)
         {
             if (expression is MethodCallExpression methodCallExpression)
             {
                 var methodCallTarget = methodCallExpression.Object;
-                var simplifiedArguments = methodCallExpression.Arguments.Select(arg => ExpressionSimplifier.SimplifyExpression(arg)).ToList();
+                var simplifiedArguments = methodCallExpression.Arguments.Select(arg => _expressionSimplifierPipeline.ProcessExpression(arg)).ToList();
 
                 return methodCallTarget == null
                     ? TrySimplifyStaticMethodCall(methodCallExpression, simplifiedArguments, out result)
@@ -55,7 +63,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionS
 
         private bool TrySimplifyInstanceMethodCall(MethodCallExpression methodCallExpression, IEnumerable<Expression> simplifiedArguments, out Expression result)
         {
-            var simplifiedMethodTargetExpression = ExpressionSimplifier.SimplifyExpression(methodCallExpression.Object);
+            var simplifiedMethodTargetExpression = _expressionSimplifierPipeline.ProcessExpression(methodCallExpression.Object);
             if (simplifiedMethodTargetExpression is ConstantExpression constantExpression)
             {
                 if (AllArgumentsAreRuntimeResolvable(simplifiedArguments))

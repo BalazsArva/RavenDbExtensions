@@ -47,6 +47,13 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
         //private static readonly MethodInfo Static_Concat = stringType.GetMethod("Concat");
         //private static readonly MethodInfo Static_Join = stringType.GetMethod("Join");
 
+        private readonly IExpressionProcessorPipeline _expressionProcessorPipeline;
+
+        public StringMethodCallExpressionProcessor(IExpressionProcessorPipeline expressionProcessorPipeline)
+        {
+            _expressionProcessorPipeline = expressionProcessorPipeline ?? throw new ArgumentNullException(nameof(expressionProcessorPipeline));
+        }
+
         public bool TryProcess(MethodCallExpression methodCallExpression, ScriptParameterDictionary parameters, out string result)
         {
             if (methodCallExpression == null)
@@ -76,7 +83,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
             if (methodInfo == Static_IsNullOrEmpty)
             {
                 var methodParameterExpression = methodCallExpression.Arguments[0];
-                var methodParameter = ExpressionParser.CreateJsScriptFromExpression(methodParameterExpression, parameters);
+                var methodParameter = _expressionProcessorPipeline.ProcessExpression(methodParameterExpression, parameters);
 
                 result = $"({methodParameter} == null || {methodParameter} == '')";
                 return true;
@@ -84,7 +91,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
             else if (methodInfo == Static_IsNullOrWhiteSpace)
             {
                 var methodParameterExpression = methodCallExpression.Arguments[0];
-                var methodParameter = ExpressionParser.CreateJsScriptFromExpression(methodParameterExpression, parameters);
+                var methodParameter = _expressionProcessorPipeline.ProcessExpression(methodParameterExpression, parameters);
 
                 result = $"({methodParameter} == null || {methodParameter}.trim() == '')";
                 return true;
@@ -114,23 +121,23 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
 
             if (methodInfo == NonStatic_Contains_Char || methodInfo == NonStatic_Contains_String)
             {
-                var searchInValue = ExpressionParser.CreateJsScriptFromExpression(methodCallExpression.Object, parameters);
+                var searchInValue = _expressionProcessorPipeline.ProcessExpression(methodCallExpression.Object, parameters);
 
                 var searchForValueExpression = methodCallExpression.Arguments[0];
-                var searchForValue = ExpressionParser.CreateJsScriptFromExpression(searchForValueExpression, parameters);
+                var searchForValue = _expressionProcessorPipeline.ProcessExpression(searchForValueExpression, parameters);
 
                 result = $"({searchInValue}.indexOf({searchForValue}) != -1)";
                 return true;
             }
             else if (methodInfo == NonStatic_Insert)
             {
-                var insertIntoValue = ExpressionParser.CreateJsScriptFromExpression(methodCallExpression.Object, parameters);
+                var insertIntoValue = _expressionProcessorPipeline.ProcessExpression(methodCallExpression.Object, parameters);
 
                 var indexValueExpression = methodCallExpression.Arguments[0];
-                var indexValue = ExpressionParser.CreateJsScriptFromExpression(indexValueExpression, parameters);
+                var indexValue = _expressionProcessorPipeline.ProcessExpression(indexValueExpression, parameters);
 
                 var insertValueExpression = methodCallExpression.Arguments[1];
-                var insertValue = ExpressionParser.CreateJsScriptFromExpression(insertValueExpression, parameters);
+                var insertValue = _expressionProcessorPipeline.ProcessExpression(insertValueExpression, parameters);
 
                 result = $"({insertIntoValue}.substring(0, {indexValue}) + {insertValue} + {insertIntoValue}.substring({indexValue}))";
                 return true;
@@ -140,22 +147,22 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
                 mappedMethodName = "substring";
 
                 var startIndexValueExpression = methodCallExpression.Arguments[0];
-                var startIndexValue = ExpressionParser.CreateJsScriptFromExpression(startIndexValueExpression, parameters);
+                var startIndexValue = _expressionProcessorPipeline.ProcessExpression(startIndexValueExpression, parameters);
 
                 argumentList.Add("0");
                 argumentList.Add(startIndexValue);
             }
             else if (methodInfo == NonStatic_Remove_StartIndex_Count)
             {
-                var removeFromValue = ExpressionParser.CreateJsScriptFromExpression(methodCallExpression.Object, parameters);
+                var removeFromValue = _expressionProcessorPipeline.ProcessExpression(methodCallExpression.Object, parameters);
 
                 var firstSegmentStartIndexExpression = methodCallExpression.Arguments[0];
-                var firstSegmentStartIndexValue = ExpressionParser.CreateJsScriptFromExpression(firstSegmentStartIndexExpression, parameters);
+                var firstSegmentStartIndexValue = _expressionProcessorPipeline.ProcessExpression(firstSegmentStartIndexExpression, parameters);
 
                 var countExpression = methodCallExpression.Arguments[1];
 
                 var secondSegmentStartIndexExpression = Expression.Add(firstSegmentStartIndexExpression, countExpression);
-                var secondSegmentStartIndexValue = ExpressionParser.CreateJsScriptFromExpression(secondSegmentStartIndexExpression, parameters);
+                var secondSegmentStartIndexValue = _expressionProcessorPipeline.ProcessExpression(secondSegmentStartIndexExpression, parameters);
 
                 result = $"({removeFromValue}.substring(0, {firstSegmentStartIndexValue}) + {removeFromValue}.substring({secondSegmentStartIndexValue}))";
                 return true;
@@ -165,7 +172,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
                 mappedMethodName = "startsWith";
 
                 var startWithValueExpression = methodCallExpression.Arguments[0];
-                var startWithValue = ExpressionParser.CreateJsScriptFromExpression(startWithValueExpression, parameters);
+                var startWithValue = _expressionProcessorPipeline.ProcessExpression(startWithValueExpression, parameters);
 
                 argumentList.Add(startWithValue);
             }
@@ -174,7 +181,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
                 mappedMethodName = "endsWith";
 
                 var startWithValueExpression = methodCallExpression.Arguments[0];
-                var startWithValue = ExpressionParser.CreateJsScriptFromExpression(startWithValueExpression, parameters);
+                var startWithValue = _expressionProcessorPipeline.ProcessExpression(startWithValueExpression, parameters);
 
                 argumentList.Add(startWithValue);
             }
@@ -183,7 +190,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
                 mappedMethodName = "padStart";
 
                 var totalWidthExpression = methodCallExpression.Arguments[0];
-                var totalWidth = ExpressionParser.CreateJsScriptFromExpression(totalWidthExpression, parameters);
+                var totalWidth = _expressionProcessorPipeline.ProcessExpression(totalWidthExpression, parameters);
 
                 Expression paddingCharExpression = Expression.Constant(DefaultPaddingChar);
                 if (methodInfo == NonStatic_PadLeft_TotalWith_PaddingChar)
@@ -191,7 +198,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
                     paddingCharExpression = methodCallExpression.Arguments[1];
                 }
 
-                var paddingChar = ExpressionParser.CreateJsScriptFromExpression(paddingCharExpression, parameters);
+                var paddingChar = _expressionProcessorPipeline.ProcessExpression(paddingCharExpression, parameters);
 
                 argumentList.Add(totalWidth);
                 argumentList.Add(paddingChar);
@@ -201,7 +208,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
                 mappedMethodName = "padEnd";
 
                 var totalWidthExpression = methodCallExpression.Arguments[0];
-                var totalWidth = ExpressionParser.CreateJsScriptFromExpression(totalWidthExpression, parameters);
+                var totalWidth = _expressionProcessorPipeline.ProcessExpression(totalWidthExpression, parameters);
 
                 Expression paddingCharExpression = Expression.Constant(DefaultPaddingChar);
                 if (methodInfo == NonStatic_PadRight_TotalWith_PaddingChar)
@@ -209,7 +216,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
                     paddingCharExpression = methodCallExpression.Arguments[1];
                 }
 
-                var paddingChar = ExpressionParser.CreateJsScriptFromExpression(paddingCharExpression, parameters);
+                var paddingChar = _expressionProcessorPipeline.ProcessExpression(paddingCharExpression, parameters);
 
                 argumentList.Add(totalWidth);
                 argumentList.Add(paddingChar);
@@ -239,7 +246,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
                 mappedMethodName = "substring";
 
                 var startIndexExpression = methodCallExpression.Arguments[0];
-                var startIndex = ExpressionParser.CreateJsScriptFromExpression(startIndexExpression, parameters);
+                var startIndex = _expressionProcessorPipeline.ProcessExpression(startIndexExpression, parameters);
 
                 argumentList.Add(startIndex);
             }
@@ -250,8 +257,8 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
                 var startIndexExpression = methodCallExpression.Arguments[0];
                 var lengthExpression = methodCallExpression.Arguments[1];
 
-                var startIndex = ExpressionParser.CreateJsScriptFromExpression(startIndexExpression, parameters);
-                var length = ExpressionParser.CreateJsScriptFromExpression(lengthExpression, parameters);
+                var startIndex = _expressionProcessorPipeline.ProcessExpression(startIndexExpression, parameters);
+                var length = _expressionProcessorPipeline.ProcessExpression(lengthExpression, parameters);
 
                 argumentList.Add(startIndex);
                 argumentList.Add(length);
@@ -262,7 +269,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
                 return false;
             }
 
-            var ownerExpressionString = ExpressionParser.CreateJsScriptFromExpression(methodCallExpression.Object, parameters);
+            var ownerExpressionString = _expressionProcessorPipeline.ProcessExpression(methodCallExpression.Object, parameters);
 
             var arguments = string.Join(", ", argumentList);
             result = $"{ownerExpressionString}.{mappedMethodName}({arguments})";

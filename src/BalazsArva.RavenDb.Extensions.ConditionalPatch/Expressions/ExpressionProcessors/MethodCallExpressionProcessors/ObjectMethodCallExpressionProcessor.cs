@@ -12,6 +12,13 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
 
         private static readonly MethodInfo NonStatic_ToString = objectType.GetMethod("ToString", Array.Empty<Type>());
 
+        private readonly IExpressionProcessorPipeline _expressionProcessorPipeline;
+
+        public ObjectMethodCallExpressionProcessor(IExpressionProcessorPipeline expressionProcessorPipeline)
+        {
+            _expressionProcessorPipeline = expressionProcessorPipeline ?? throw new ArgumentNullException(nameof(expressionProcessorPipeline));
+        }
+
         public bool TryProcess(MethodCallExpression methodCallExpression, ScriptParameterDictionary parameters, out string result)
         {
             if (methodCallExpression == null)
@@ -33,7 +40,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
 
             if (methodCallExpression.Method == NonStatic_ToString)
             {
-                var ownerExpressionString = ExpressionParser.CreateJsScriptFromExpression(methodCallExpression.Object, parameters);
+                var ownerExpressionString = _expressionProcessorPipeline.ProcessExpression(methodCallExpression.Object, parameters);
 
                 result = $"{ownerExpressionString}.toString()";
                 return true;
