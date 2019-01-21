@@ -19,4 +19,8 @@
     <ProjectReference Include="..\BalazsArva.RavenDb.Extensions.ConditionalPatch\BalazsArva.RavenDb.Extensions.ConditionalPatch.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="ExpressionProcessorTests\" />
+  </ItemGroup>
+
 </Project>
