@@ -23,6 +23,13 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
             typeof(IReadOnlyCollection<>)
         };
 
+        private readonly IExpressionProcessorPipeline _expressionProcessorPipeline;
+
+        public CollectionCountMemberExpressionProcessor(IExpressionProcessorPipeline expressionProcessorPipeline)
+        {
+            _expressionProcessorPipeline = expressionProcessorPipeline ?? throw new ArgumentNullException(nameof(expressionProcessorPipeline));
+        }
+
         public bool TryProcess(MemberExpression memberExpression, ScriptParameterDictionary parameters, out string result)
         {
             if (memberExpression == null)
@@ -38,7 +45,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
             // TODO: Tests
             if (memberExpression.Member is PropertyInfo propertyInfo && IsSpeciallyTreatedCountPropertyAccess(propertyInfo))
             {
-                var ownerExpressionString = ExpressionParser.CreateJsScriptFromExpression(memberExpression.Expression, parameters);
+                var ownerExpressionString = _expressionProcessorPipeline.ProcessExpression(memberExpression.Expression, parameters);
 
                 result = $"{ownerExpressionString}.length";
                 return true;

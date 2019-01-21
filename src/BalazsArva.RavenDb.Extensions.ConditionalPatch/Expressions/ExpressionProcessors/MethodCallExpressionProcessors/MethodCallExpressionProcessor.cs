@@ -10,14 +10,19 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
     {
         private readonly IEnumerable<IExpressionProcessor<MethodCallExpression>> expressionProcessors;
 
-        public MethodCallExpressionProcessor()
+        public MethodCallExpressionProcessor(IExpressionProcessorPipeline expressionProcessorPipeline)
         {
+            if (expressionProcessorPipeline == null)
+            {
+                throw new ArgumentNullException(nameof(expressionProcessorPipeline));
+            }
+
             // TODO: Consider LINQ extension methods as well!
             expressionProcessors = new List<IExpressionProcessor<MethodCallExpression>>
             {
-                new ObjectMethodCallExpressionProcessor(),
-                new IntegralTypesMethodCallExpressionProcessor(),
-                new StringMethodCallExpressionProcessor()
+                new ObjectMethodCallExpressionProcessor(expressionProcessorPipeline),
+                new IntegralTypesMethodCallExpressionProcessor(expressionProcessorPipeline),
+                new StringMethodCallExpressionProcessor(expressionProcessorPipeline)
             };
         }
 

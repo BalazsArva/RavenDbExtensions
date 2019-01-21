@@ -5,24 +5,24 @@ using BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionSimpl
 
 namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.Abstractions
 {
-    public static class ExpressionSimplifierPipeline
+    public class ExpressionSimplifierPipeline : IExpressionSimplifierPipeline
     {
-        private static readonly IEnumerable<IExpressionSimplifier> expressionSimplifiers;
+        private readonly IEnumerable<IExpressionSimplifier> expressionSimplifiers;
 
-        static ExpressionSimplifierPipeline()
+        public ExpressionSimplifierPipeline()
         {
             expressionSimplifiers = new List<IExpressionSimplifier>
             {
-                new BinaryExpressionSimplifier(),
-                new LambdaExpressionSimplifier(),
-                new ConditionalExpressionSimplifier(),
-                new MemberExpressionSimplifier(),
-                new MethodCallExpressionSimplifier(),
-                new UnaryExpressionSimplifier(),
+                new BinaryExpressionSimplifier(this),
+                new LambdaExpressionSimplifier(this),
+                new ConditionalExpressionSimplifier(this),
+                new MemberExpressionSimplifier(this),
+                new MethodCallExpressionSimplifier(this),
+                new UnaryExpressionSimplifier(this)
             };
         }
 
-        public static Expression ProcessExpression(Expression expression)
+        public Expression ProcessExpression(Expression expression)
         {
             if (expression == null)
             {

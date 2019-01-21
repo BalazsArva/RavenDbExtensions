@@ -7,6 +7,13 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
 {
     public class UnaryExpressionProcessor : IExpressionProcessor
     {
+        private readonly IExpressionProcessorPipeline _expressionProcessorPipeline;
+
+        public UnaryExpressionProcessor(IExpressionProcessorPipeline expressionProcessorPipeline)
+        {
+            _expressionProcessorPipeline = expressionProcessorPipeline ?? throw new ArgumentNullException(nameof(expressionProcessorPipeline));
+        }
+
         public bool TryProcess(Expression expression, ScriptParameterDictionary parameters, out string result)
         {
             if (expression == null)
@@ -28,7 +35,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
             }
 
             var operation = unaryExpression.NodeType;
-            var operand = ExpressionParser.CreateJsScriptFromExpression(unaryExpression.Operand, parameters);
+            var operand = _expressionProcessorPipeline.ProcessExpression(unaryExpression.Operand, parameters);
 
             switch (operation)
             {

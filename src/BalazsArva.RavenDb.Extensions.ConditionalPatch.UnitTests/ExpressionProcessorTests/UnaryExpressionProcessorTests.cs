@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
-using BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionProcessors;
+using BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.Abstractions;
+using BalazsArva.RavenDb.Extensions.ConditionalPatch.Factories;
 using BalazsArva.RavenDb.Extensions.ConditionalPatch.UnitTests.TestDocuments;
 using BalazsArva.RavenDb.Extensions.ConditionalPatch.Utilitites;
 using NUnit.Framework;
@@ -11,18 +11,18 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.UnitTests.ExpressionPro
     [TestFixture]
     public class UnaryExpressionProcessorTests
     {
-        private UnaryExpressionProcessor processor;
+        private IExpressionProcessorPipeline expressionProcessorPipeline;
 
         [SetUp]
         public void Setup()
         {
-            processor = new UnaryExpressionProcessor();
+            expressionProcessorPipeline = ExpressionProcessorPipelineFactory.CreateExpressionProcessorPipeline();
         }
 
         [Test]
         public void TryProcess_ExpressionIsNull_ThrowsArgumentNullException()
         {
-            var exceptionThrown = Assert.Throws<ArgumentNullException>(() => processor.TryProcess(null, new ScriptParameterDictionary(), out var _));
+            var exceptionThrown = Assert.Throws<ArgumentNullException>(() => expressionProcessorPipeline.ProcessExpression(null, new ScriptParameterDictionary()));
 
             Assert.AreEqual("expression", exceptionThrown.ParamName);
         }
@@ -32,36 +32,23 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.UnitTests.ExpressionPro
         {
             var expression = Expression.ArrayLength(LambdaExpression(doc => doc.Array).Body);
 
-            var exceptionThrown = Assert.Throws<ArgumentNullException>(() => processor.TryProcess(expression, null, out var _));
+            var exceptionThrown = Assert.Throws<ArgumentNullException>(() => expressionProcessorPipeline.ProcessExpression(expression, null));
 
             Assert.AreEqual("parameters", exceptionThrown.ParamName);
         }
 
-        [TestCaseSource(nameof(ArrayLengthTestCases))]
-        public void TryProcess_ArrayLengthOfParameter_ReturnsTrueAndCreatesCorrectScript(Expression arrayExpression, string expectedScript)
+        [Test]
+        public void TryProcess_ArrayLengthOfParameter_ReturnsTrueAndCreatesCorrectScript()
         {
-            var expression = Expression.ArrayLength(arrayExpression);
+            var result = expressionProcessorPipeline.ProcessExpression(LambdaExpression(doc => doc.Array.Length).Body, new ScriptParameterDictionary());
 
-            var success = processor.TryProcess(expression, new ScriptParameterDictionary(), out var resultScript);
-
-            Assert.IsTrue(success);
-            Assert.AreEqual(expectedScript, resultScript);
-        }
-
-        private static IEnumerable<object[]> ArrayLengthTestCases()
-        {
-            yield return new object[]
-            {
-                LambdaExpression(doc => doc.Array).Body,
-                "this.Array.length"
-            };
+            Assert.AreEqual("this.Array.length", result);
         }
 
         private static LambdaExpression LambdaExpression<TProperty>(Expression<Func<TestDocument, TProperty>> expression)
         {
             // Convenience method for not having to explicitly write
             // ((Expression<Func<TestDocument, int[]>>)(doc => doc.Array))-like things everywhere.
-
             return expression;
         }
     }

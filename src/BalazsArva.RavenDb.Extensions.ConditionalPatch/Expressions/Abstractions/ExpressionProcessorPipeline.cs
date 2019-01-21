@@ -8,35 +8,38 @@ using BalazsArva.RavenDb.Extensions.ConditionalPatch.Utilitites;
 
 namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.Abstractions
 {
-    public static class ExpressionProcessorPipeline
+    public class ExpressionProcessorPipeline : IExpressionProcessorPipeline
     {
-        private static readonly IEnumerable<IExpressionProcessor> expressionProcessors;
+        private readonly IEnumerable<IExpressionProcessor> _expressionProcessors;
+        private readonly IExpressionSimplifierPipeline _expressionSimplifierPipeline;
 
-        static ExpressionProcessorPipeline()
+        public ExpressionProcessorPipeline(IExpressionSimplifierPipeline expressionSimplifierPipeline)
         {
-            expressionProcessors = new List<IExpressionProcessor>
+            _expressionSimplifierPipeline = expressionSimplifierPipeline ?? throw new ArgumentNullException(nameof(expressionSimplifierPipeline));
+            _expressionProcessors = new List<IExpressionProcessor>
             {
                 new ConstantExpressionProcessor(),
-                new LambdaExpressionProcessor(),
-                new BinaryExpressionProcessor(),
-                new UnaryExpressionProcessor(),
-                new ConditionalExpressionProcessor(),
+                new LambdaExpressionProcessor(this),
+                new BinaryExpressionProcessor(this),
+                new UnaryExpressionProcessor(this),
+                new ConditionalExpressionProcessor(this),
                 new ParameterExpressionProcessor(),
-                new MemberExpressionProcessor(),
-                new MethodCallExpressionProcessor()
+                new MemberExpressionProcessor(this),
+                new MethodCallExpressionProcessor(this)
             };
         }
 
-        public static string ProcessExpression(Expression expression, ScriptParameterDictionary parameters)
+        public string ProcessExpression(Expression expression, ScriptParameterDictionary parameters)
         {
             if (expression == null)
             {
                 throw new ArgumentNullException(nameof(expression));
             }
 
-            foreach (var processor in expressionProcessors)
+            var simplifiedExpression = _expressionSimplifierPipeline.ProcessExpression(expression);
+            foreach (var processor in _expressionProcessors)
             {
-                if (processor.TryProcess(expression, parameters, out var result))
+                if (processor.TryProcess(simplifiedExpression, parameters, out var result))
                 {
                     return result;
                 }

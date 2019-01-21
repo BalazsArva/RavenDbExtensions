@@ -10,6 +10,13 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
     {
         private static readonly Type NullableType = typeof(Nullable<>);
 
+        private readonly IExpressionProcessorPipeline _expressionProcessorPipeline;
+
+        public NullableMemberExpressionProcessor(IExpressionProcessorPipeline expressionProcessorPipeline)
+        {
+            _expressionProcessorPipeline = expressionProcessorPipeline ?? throw new ArgumentNullException(nameof(expressionProcessorPipeline));
+        }
+
         public bool TryProcess(MemberExpression memberExpression, ScriptParameterDictionary parameters, out string result)
         {
             if (memberExpression == null)
@@ -34,7 +41,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
                 {
                     if (propertyInfo.Name == "HasValue")
                     {
-                        var ownerExpressionString = ExpressionParser.CreateJsScriptFromExpression(memberExpression.Expression, parameters);
+                        var ownerExpressionString = _expressionProcessorPipeline.ProcessExpression(memberExpression.Expression, parameters);
 
                         result = $"({ownerExpressionString} != null)";
                         return true;
@@ -42,7 +49,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
 
                     if (propertyInfo.Name == "Value")
                     {
-                        var ownerExpressionString = ExpressionParser.CreateJsScriptFromExpression(memberExpression.Expression, parameters);
+                        var ownerExpressionString = _expressionProcessorPipeline.ProcessExpression(memberExpression.Expression, parameters);
 
                         result = $"{ownerExpressionString}";
                         return true;

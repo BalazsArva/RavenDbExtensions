@@ -8,11 +8,18 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionS
     {
         private static readonly Type objectType = typeof(object);
 
+        private readonly IExpressionSimplifierPipeline _expressionSimplifierPipeline;
+
+        public UnaryExpressionSimplifier(IExpressionSimplifierPipeline expressionSimplifierPipeline)
+        {
+            _expressionSimplifierPipeline = expressionSimplifierPipeline ?? throw new ArgumentNullException(nameof(expressionSimplifierPipeline));
+        }
+
         public bool TrySimplifyExpression(Expression expression, out Expression result)
         {
             if (expression is UnaryExpression unaryExpression)
             {
-                var simplifiedOperand = ExpressionSimplifier.SimplifyExpression(unaryExpression.Operand);
+                var simplifiedOperand = _expressionSimplifierPipeline.ProcessExpression(unaryExpression.Operand);
 
                 // Runtime-resolvable value
                 if (simplifiedOperand.NodeType == ExpressionType.Constant)

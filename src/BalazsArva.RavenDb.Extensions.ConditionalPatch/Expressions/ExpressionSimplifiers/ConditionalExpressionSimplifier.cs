@@ -1,17 +1,25 @@
-﻿using System.Linq.Expressions;
+﻿using System;
+using System.Linq.Expressions;
 using BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.Abstractions;
 
 namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionSimplifiers
 {
     public class ConditionalExpressionSimplifier : IExpressionSimplifier
     {
+        private readonly IExpressionSimplifierPipeline _expressionSimplifierPipeline;
+
+        public ConditionalExpressionSimplifier(IExpressionSimplifierPipeline expressionSimplifierPipeline)
+        {
+            _expressionSimplifierPipeline = expressionSimplifierPipeline ?? throw new ArgumentNullException(nameof(expressionSimplifierPipeline));
+        }
+
         public bool TrySimplifyExpression(Expression expression, out Expression result)
         {
             if (expression is ConditionalExpression conditionalExpression)
             {
-                var simplifiedTestExpression = ExpressionSimplifier.SimplifyExpression(conditionalExpression.Test);
-                var simplifiedIfTrueExpression = ExpressionSimplifier.SimplifyExpression(conditionalExpression.IfTrue);
-                var simplifiedIfFalseExpression = ExpressionSimplifier.SimplifyExpression(conditionalExpression.IfFalse);
+                var simplifiedTestExpression = _expressionSimplifierPipeline.ProcessExpression(conditionalExpression.Test);
+                var simplifiedIfTrueExpression = _expressionSimplifierPipeline.ProcessExpression(conditionalExpression.IfTrue);
+                var simplifiedIfFalseExpression = _expressionSimplifierPipeline.ProcessExpression(conditionalExpression.IfFalse);
 
                 // If the condition and both of the branches could be evaluated, then evaluate and return the result as a constant expression.
                 if (simplifiedTestExpression is ConstantExpression constantTestExpression &&

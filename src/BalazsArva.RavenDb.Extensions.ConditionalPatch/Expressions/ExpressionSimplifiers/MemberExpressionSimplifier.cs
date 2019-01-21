@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using System;
+using System.Linq.Expressions;
 using System.Reflection;
 using BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.Abstractions;
 
@@ -6,6 +7,13 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionS
 {
     public class MemberExpressionSimplifier : IExpressionSimplifier
     {
+        private readonly IExpressionSimplifierPipeline _expressionSimplifierPipeline;
+
+        public MemberExpressionSimplifier(IExpressionSimplifierPipeline expressionSimplifierPipeline)
+        {
+            _expressionSimplifierPipeline = expressionSimplifierPipeline ?? throw new ArgumentNullException(nameof(expressionSimplifierPipeline));
+        }
+
         public bool TrySimplifyExpression(Expression expression, out Expression result)
         {
             if (expression is MemberExpression memberExpression)
@@ -50,7 +58,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionS
 
         private bool TrySimplifyInstanceMemberAccess(MemberExpression memberExpression, out Expression result)
         {
-            var simplifiedMemberAccessTarget = ExpressionSimplifier.SimplifyExpression(memberExpression.Expression);
+            var simplifiedMemberAccessTarget = _expressionSimplifierPipeline.ProcessExpression(memberExpression.Expression);
 
             var fieldInfo = memberExpression.Member as FieldInfo;
             var propertyInfo = memberExpression.Member as PropertyInfo;

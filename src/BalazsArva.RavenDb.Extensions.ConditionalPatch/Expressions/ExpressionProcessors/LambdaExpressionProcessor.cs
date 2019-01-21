@@ -7,6 +7,13 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
 {
     public class LambdaExpressionProcessor : IExpressionProcessor
     {
+        private readonly IExpressionProcessorPipeline _expressionProcessorPipeline;
+
+        public LambdaExpressionProcessor(IExpressionProcessorPipeline expressionProcessorPipeline)
+        {
+            _expressionProcessorPipeline = expressionProcessorPipeline ?? throw new ArgumentNullException(nameof(expressionProcessorPipeline));
+        }
+
         public bool TryProcess(Expression expression, ScriptParameterDictionary parameters, out string result)
         {
             if (expression == null)
@@ -31,7 +38,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
             var expressionParameters = lambdaExpression.Parameters;
             var body = lambdaExpression.Body;
 
-            result = ExpressionParser.CreateJsScriptFromExpression(body, parameters);
+            result = _expressionProcessorPipeline.ProcessExpression(body, parameters);
 
             return true;
         }
