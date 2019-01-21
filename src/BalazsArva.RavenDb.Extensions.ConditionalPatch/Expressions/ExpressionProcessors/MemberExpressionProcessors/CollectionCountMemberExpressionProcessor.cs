@@ -9,7 +9,7 @@ using BalazsArva.RavenDb.Extensions.ConditionalPatch.Utilitites;
 
 namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionProcessors.MemberExpressionProcessors
 {
-    public class CountMemberExpressionProcessor : IExpressionProcessor<MemberExpression>
+    public class CollectionCountMemberExpressionProcessor : IExpressionProcessor<MemberExpression>
     {
         private const string CountPropertyName = "Count";
 

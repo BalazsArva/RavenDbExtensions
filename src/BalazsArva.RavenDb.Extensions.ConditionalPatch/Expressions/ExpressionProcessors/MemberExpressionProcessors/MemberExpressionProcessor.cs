@@ -23,7 +23,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
                 // This must come before CollectionCountMemberExpressionProcessor
                 new DictionaryMemberExpressionProcessor(),
 
-                new CountMemberExpressionProcessor(),
+                new CollectionCountMemberExpressionProcessor(),
 
                 // This must be the last one, otherwise this will wrongly return the specially treated ones as well!
                 new HandleAllMemberExpressionProcessor()
