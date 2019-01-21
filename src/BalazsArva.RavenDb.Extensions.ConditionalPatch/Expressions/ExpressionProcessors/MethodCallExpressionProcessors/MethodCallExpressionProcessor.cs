@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.Abstractions;
+using BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionProcessors.MethodCallExpressionProcessors.Linq;
 using BalazsArva.RavenDb.Extensions.ConditionalPatch.Utilitites;
 
 namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionProcessors.MethodCallExpressionProcessors
@@ -22,7 +23,8 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
             {
                 new ObjectMethodCallExpressionProcessor(expressionProcessorPipeline),
                 new IntegralTypesMethodCallExpressionProcessor(expressionProcessorPipeline),
-                new StringMethodCallExpressionProcessor(expressionProcessorPipeline)
+                new StringMethodCallExpressionProcessor(expressionProcessorPipeline),
+                new LinqExtensionMethodCallExpressionProcessor(expressionProcessorPipeline),
             };
         }
 
@@ -38,23 +40,18 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
                 throw new ArgumentNullException(nameof(parameters));
             }
 
-            var methodCallExpression = expression as MethodCallExpression;
-            if (methodCallExpression == null)
+            if (expression is MethodCallExpression methodCallExpression)
             {
-                result = default;
-                return false;
-            }
-
-            foreach (var processor in expressionProcessors)
-            {
-                if (processor.TryProcess(methodCallExpression, parameters, out result))
+                foreach (var processor in expressionProcessors)
                 {
-                    return true;
+                    if (processor.TryProcess(methodCallExpression, parameters, out result))
+                    {
+                        return true;
+                    }
                 }
             }
 
             result = default;
-
             return false;
         }
     }

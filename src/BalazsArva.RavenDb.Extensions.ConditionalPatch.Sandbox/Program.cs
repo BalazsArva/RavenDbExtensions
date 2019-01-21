@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Linq.Expressions;
 using BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.Abstractions;
 using BalazsArva.RavenDb.Extensions.ConditionalPatch.Factories;
@@ -36,6 +37,9 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Sandbox
             PrintCondition(doc => doc.Dictionary.Count > 0);
             PrintCondition(doc => doc.Dictionary.Keys.Count > 0);
             PrintCondition(doc => doc.Dictionary.Values.Count > 0);
+
+            PrintCondition(doc => doc.InvolvedUsers.Any());
+            PrintCondition(doc => doc.InvolvedUsers.Any(u => u == string.Empty));
 
             var script = patchScriptBuilder.CreateConditionalPatchScript(
                 new PropertyUpdateBatch<TestDocument>()
