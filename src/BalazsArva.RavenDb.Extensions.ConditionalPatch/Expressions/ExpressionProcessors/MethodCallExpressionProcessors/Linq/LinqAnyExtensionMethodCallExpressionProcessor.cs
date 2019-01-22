@@ -145,9 +145,13 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
                 // not the methodCallExpression.Object (because that is null).
                 var ownerExpressionString = _expressionProcessorPipeline.ProcessExpression(methodCallExpression.Arguments[0], parameters);
 
-                // TODO: Process the predicate as well!
+                var predicate = (LambdaExpression)methodCallExpression.Arguments[1];
+                var jsPredicateParameter = predicate.Parameters[0].Name;
+                var jsPredicateBody = _expressionProcessorPipeline.ProcessExpression(predicate, parameters);
+                var jsPredicateFunction = $"function({jsPredicateParameter}) {{ return {jsPredicateBody}; }}";
+
                 // TODO: Special treatment for Dictionaries
-                result = $"{ownerExpressionString}.length > 0";
+                result = $"({ownerExpressionString}).some({jsPredicateFunction}).length > 0";
                 return true;
             }
 
