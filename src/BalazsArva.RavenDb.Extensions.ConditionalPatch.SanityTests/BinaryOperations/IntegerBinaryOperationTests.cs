@@ -28,7 +28,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.BinaryOpera
             var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
 
             Assert.AreEqual(
-                "(this.SomeInt + args.__param1)",
+                "(doc.SomeInt + args.__param1)",
                 result);
 
             Assert.AreEqual(1, parameters.Count);
@@ -44,7 +44,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.BinaryOpera
             var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
 
             Assert.AreEqual(
-                "(this.SomeInt & args.__param1)",
+                "(doc.SomeInt & args.__param1)",
                 result);
 
             Assert.AreEqual(1, parameters.Count);
@@ -60,7 +60,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.BinaryOpera
             var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
 
             Assert.AreEqual(
-                "(this.SomeInt / args.__param1)",
+                "(doc.SomeInt / args.__param1)",
                 result);
 
             Assert.AreEqual(1, parameters.Count);
@@ -76,7 +76,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.BinaryOpera
             var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
 
             Assert.AreEqual(
-                "(this.SomeInt ^ args.__param1)",
+                "(doc.SomeInt ^ args.__param1)",
                 result);
 
             Assert.AreEqual(1, parameters.Count);
@@ -92,7 +92,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.BinaryOpera
             var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
 
             Assert.AreEqual(
-                "(this.SomeInt % args.__param1)",
+                "(doc.SomeInt % args.__param1)",
                 result);
 
             Assert.AreEqual(1, parameters.Count);
@@ -108,7 +108,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.BinaryOpera
             var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
 
             Assert.AreEqual(
-                "(this.SomeInt * args.__param1)",
+                "(doc.SomeInt * args.__param1)",
                 result);
 
             Assert.AreEqual(1, parameters.Count);
@@ -124,7 +124,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.BinaryOpera
             var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
 
             Assert.AreEqual(
-                "(this.SomeInt | args.__param1)",
+                "(doc.SomeInt | args.__param1)",
                 result);
 
             Assert.AreEqual(1, parameters.Count);
@@ -140,7 +140,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.BinaryOpera
             var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
 
             Assert.AreEqual(
-                "(this.SomeInt - args.__param1)",
+                "(doc.SomeInt - args.__param1)",
                 result);
 
             Assert.AreEqual(1, parameters.Count);
@@ -159,7 +159,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.BinaryOpera
             var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
 
             Assert.AreEqual(
-                "(this.SomeInt = args.__param1)",
+                "(doc.SomeInt = args.__param1)",
                 result);
 
             Assert.AreEqual(1, parameters.Count);
@@ -178,7 +178,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.BinaryOpera
             var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
 
             Assert.AreEqual(
-                "(this.SomeInt += args.__param1)",
+                "(doc.SomeInt += args.__param1)",
                 result);
 
             Assert.AreEqual(1, parameters.Count);
@@ -197,7 +197,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.BinaryOpera
             var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
 
             Assert.AreEqual(
-                "(this.SomeInt &= args.__param1)",
+                "(doc.SomeInt &= args.__param1)",
                 result);
 
             Assert.AreEqual(1, parameters.Count);
@@ -216,7 +216,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.BinaryOpera
             var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
 
             Assert.AreEqual(
-                "(this.SomeInt /= args.__param1)",
+                "(doc.SomeInt /= args.__param1)",
                 result);
 
             Assert.AreEqual(1, parameters.Count);
@@ -235,7 +235,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.BinaryOpera
             var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
 
             Assert.AreEqual(
-                "(this.SomeInt ^= args.__param1)",
+                "(doc.SomeInt ^= args.__param1)",
                 result);
 
             Assert.AreEqual(1, parameters.Count);
@@ -254,7 +254,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.BinaryOpera
             var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
 
             Assert.AreEqual(
-                "(this.SomeInt %= args.__param1)",
+                "(doc.SomeInt %= args.__param1)",
                 result);
 
             Assert.AreEqual(1, parameters.Count);
@@ -273,7 +273,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.BinaryOpera
             var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
 
             Assert.AreEqual(
-                "(this.SomeInt *= args.__param1)",
+                "(doc.SomeInt *= args.__param1)",
                 result);
 
             Assert.AreEqual(1, parameters.Count);
@@ -292,7 +292,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.BinaryOpera
             var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
 
             Assert.AreEqual(
-                "(this.SomeInt |= args.__param1)",
+                "(doc.SomeInt |= args.__param1)",
                 result);
 
             Assert.AreEqual(1, parameters.Count);
@@ -311,7 +311,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.BinaryOpera
             var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
 
             Assert.AreEqual(
-                "(this.SomeInt -= args.__param1)",
+                "(doc.SomeInt -= args.__param1)",
                 result);
 
             Assert.AreEqual(1, parameters.Count);
@@ -327,7 +327,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.BinaryOpera
             var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
 
             Assert.AreEqual(
-                "(this.SomeInt < args.__param1)",
+                "(doc.SomeInt < args.__param1)",
                 result);
 
             Assert.AreEqual(1, parameters.Count);
@@ -343,7 +343,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.BinaryOpera
             var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
 
             Assert.AreEqual(
-                "(this.SomeInt <= args.__param1)",
+                "(doc.SomeInt <= args.__param1)",
                 result);
 
             Assert.AreEqual(1, parameters.Count);
@@ -359,7 +359,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.BinaryOpera
             var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
 
             Assert.AreEqual(
-                "(this.SomeInt > args.__param1)",
+                "(doc.SomeInt > args.__param1)",
                 result);
 
             Assert.AreEqual(1, parameters.Count);
@@ -375,7 +375,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.BinaryOpera
             var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
 
             Assert.AreEqual(
-                "(this.SomeInt >= args.__param1)",
+                "(doc.SomeInt >= args.__param1)",
                 result);
 
             Assert.AreEqual(1, parameters.Count);
@@ -391,7 +391,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.BinaryOpera
             var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
 
             Assert.AreEqual(
-                "(this.SomeInt == args.__param1)",
+                "(doc.SomeInt == args.__param1)",
                 result);
 
             Assert.AreEqual(1, parameters.Count);
@@ -407,7 +407,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.BinaryOpera
             var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
 
             Assert.AreEqual(
-                "(this.SomeInt != args.__param1)",
+                "(doc.SomeInt != args.__param1)",
                 result);
 
             Assert.AreEqual(1, parameters.Count);

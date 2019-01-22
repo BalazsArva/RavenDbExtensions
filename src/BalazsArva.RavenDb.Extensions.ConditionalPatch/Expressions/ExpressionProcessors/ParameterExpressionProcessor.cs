@@ -7,8 +7,6 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
 {
     public class ParameterExpressionProcessor : IExpressionProcessor
     {
-        private const string ParameterReference = "this";
-
         public bool TryProcess(Expression expression, ScriptParameterDictionary parameters, out string result)
         {
             if (expression == null)
@@ -21,10 +19,9 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
                 throw new ArgumentNullException(nameof(parameters));
             }
 
-            // TODO: Consider cases when there can be multiple parameters
-            if (expression is ParameterExpression)
+            if (expression is ParameterExpression parameterExpression)
             {
-                result = ParameterReference;
+                result = parameterExpression.Name;
 
                 return true;
             }

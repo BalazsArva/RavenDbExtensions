@@ -15,7 +15,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.UnaryOperat
         {
             var result = GetParsedJavaScript(doc => doc.SomeIntArray.Length != 0);
 
-            Assert.AreEqual("(this.SomeIntArray.length != args.__param1)", result.script);
+            Assert.AreEqual("(doc.SomeIntArray.length != args.__param1)", result.script);
             Assert.AreEqual(1, result.parameters.Count);
             Assert.AreEqual(0, result.parameters["__param1"]);
         }
