@@ -12,6 +12,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Sandbox
     {
         private static IExpressionProcessorPipeline expressionProcessorPipeline = ExpressionProcessorPipelineFactory.CreateExpressionProcessorPipeline();
         private static IPatchScriptBuilder patchScriptBuilder = PatchScriptBuilderFactory.CreatePatchScriptBuilder();
+        private static IPatchScriptConditionBuilder patchScriptConditionBuilder = PatchScriptConditionBuilderFactory.CreatePatchScriptBodyBuilder();
 
         private static void Main(string[] args)
         {
@@ -44,6 +45,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Sandbox
             var script = patchScriptBuilder.CreateConditionalPatchScript(
                 new PropertyUpdateBatch<TestDocument>()
                     .Add(doc => doc.LastKnownChangeId, dummyChangeId2)
+                    .Add(doc => doc.RecordedChangeIds, new[] { 1L, 2L, 3L })
                     .CreateBatch(),
                 (TestDocument doc) => doc.LastKnownChangeId < dummyChangeId2,
                 new ScriptParameterDictionary());
@@ -65,7 +67,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Sandbox
             Console.WriteLine();
 
             var parameters = new ScriptParameterDictionary();
-            var script = expressionProcessorPipeline.ProcessExpression(expression, parameters);
+            var script = patchScriptConditionBuilder.CreateScriptCondition(expression, parameters);
 
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("Created JavaScript expression:");
@@ -79,11 +81,19 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Sandbox
             {
                 Console.Write("\t");
 
-                var value = parameter.Value;
-
-                value = value == null
-                    ? "null"
-                    : (value is string str && str == string.Empty ? "(empty string)" : value);
+                string value;
+                if (parameter.Value is string || parameter.Value is char)
+                {
+                    value = '"' + parameter.Value.ToString().Replace("\"", "\\\"") + '"';
+                }
+                else if (parameter.Value == null)
+                {
+                    value = "null";
+                }
+                else
+                {
+                    value = parameter.Value.ToString();
+                }
 
                 Console.WriteLine($"{parameter.Key}: {value}");
             }

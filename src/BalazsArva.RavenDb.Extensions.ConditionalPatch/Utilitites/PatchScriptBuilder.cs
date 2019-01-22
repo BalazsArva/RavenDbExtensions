@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.Abstractions;
-using BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.Visitors;
 
 namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Utilitites
 {
@@ -12,44 +9,26 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Utilitites
         private const string DocumentParameterName = "this";
 
         private readonly IExpressionProcessorPipeline _expressionProcessorPipeline;
+        private readonly IPatchScriptConditionBuilder _patchScriptConditionBuilder;
+        private readonly IPatchScriptBodyBuilder _patchScriptBodyBuilder;
 
-        public PatchScriptBuilder(IExpressionProcessorPipeline expressionProcessorPipeline)
+        public PatchScriptBuilder(IExpressionProcessorPipeline expressionProcessorPipeline, IPatchScriptConditionBuilder patchScriptConditionBuilder, IPatchScriptBodyBuilder patchScriptBodyBuilder)
         {
             _expressionProcessorPipeline = expressionProcessorPipeline ?? throw new ArgumentNullException(nameof(expressionProcessorPipeline));
+            _patchScriptConditionBuilder = patchScriptConditionBuilder ?? throw new ArgumentNullException(nameof(patchScriptConditionBuilder));
+            _patchScriptBodyBuilder = patchScriptBodyBuilder ?? throw new ArgumentNullException(nameof(patchScriptBodyBuilder));
         }
 
         public string CreateConditionalPatchScript<TDocument>(PropertyUpdateDescriptor[] propertyUpdates, Expression<Func<TDocument, bool>> condition, ScriptParameterDictionary parameters)
         {
-            var normalizedCondition = NormalizeCondition(condition);
+            var scriptCondition = _patchScriptConditionBuilder.CreateScriptCondition(condition, parameters);
+            var scriptBody = _patchScriptBodyBuilder.CreateScriptBody(propertyUpdates, parameters);
 
-            var parsedConditionExpression = _expressionProcessorPipeline.ProcessExpression(normalizedCondition, parameters);
-            var assignmentScripts = new List<string>(propertyUpdates.Length);
-
-            foreach (var propertyUpdate in propertyUpdates)
-            {
-                var assignmentExpression = Expression.Assign(
-                    propertyUpdate.MemberSelector,
-                    Expression.Constant(propertyUpdate.NewValue));
-
-                assignmentScripts.Add(_expressionProcessorPipeline.ProcessExpression(assignmentExpression, parameters));
-            }
-
-            var scriptCondition = $"if ({parsedConditionExpression})";
-            var scriptBody = string.Join(
+            return string.Join(
                 "\n",
-                assignmentScripts.Select(script => $"\t{script};"));
-
-            return string.Join("\n", scriptCondition, "{", scriptBody, "}");
-        }
-
-        private Expression<Func<TDocument, bool>> NormalizeCondition<TDocument>(Expression<Func<TDocument, bool>> condition)
-        {
-            condition = condition ?? (doc => true);
-
-            var visitor = new ParameterRenamerExpressionVisitor(DocumentParameterName, condition.Parameters[0]);
-            var transformedExpression = (Expression<Func<TDocument, bool>>)visitor.Visit(condition);
-
-            return transformedExpression;
+                $"if ({scriptCondition}) {{",
+                scriptBody,
+                "}");
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Linq.Expressions;
 using BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.Abstractions;
 using BalazsArva.RavenDb.Extensions.ConditionalPatch.Utilitites;
@@ -34,11 +35,11 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
                 return false;
             }
 
-            // TODO: Review this
-            var expressionParameters = lambdaExpression.Parameters;
-            var body = lambdaExpression.Body;
+            var parameterList = string.Join(", ", lambdaExpression.Parameters.Select(p => p.Name));
+            var body = _expressionProcessorPipeline.ProcessExpression(lambdaExpression.Body, parameters);
 
-            result = _expressionProcessorPipeline.ProcessExpression(body, parameters);
+            // TODO: Consider whether "return" is always correct (technically we can return void stuff in JS but what if
+            result = $"function({parameterList}) {{ return {body}; }}";
 
             return true;
         }

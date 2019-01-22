@@ -22,129 +22,113 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.BinaryOpera
         [Test]
         public void BinaryOps_Integers_Add()
         {
-            var expression = LambdaExpression(doc => doc.SomeInt + 1);
-            var parameters = new ScriptParameterDictionary();
-
-            var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
+            var result = GetParsedJavaScript(doc => doc.SomeInt + 1 > 0);
 
             Assert.AreEqual(
-                "(doc.SomeInt + args.__param1)",
-                result);
+                "((this.SomeInt + args.__param1) > args.__param2)",
+                result.script);
 
-            Assert.AreEqual(1, parameters.Count);
-            Assert.AreEqual(1, parameters["__param1"]);
+            Assert.AreEqual(2, result.parameters.Count);
+            Assert.AreEqual(1, result.parameters["__param1"]);
+            Assert.AreEqual(0, result.parameters["__param2"]);
         }
 
         [Test]
         public void BinaryOps_Integers_BinaryAnd()
         {
-            var expression = LambdaExpression(doc => doc.SomeInt & 1);
-            var parameters = new ScriptParameterDictionary();
-
-            var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
+            var result = GetParsedJavaScript(doc => (doc.SomeInt & 1) > 0);
 
             Assert.AreEqual(
-                "(doc.SomeInt & args.__param1)",
-                result);
+                "((this.SomeInt & args.__param1) > args.__param2)",
+                result.script);
 
-            Assert.AreEqual(1, parameters.Count);
-            Assert.AreEqual(1, parameters["__param1"]);
+            Assert.AreEqual(2, result.parameters.Count);
+            Assert.AreEqual(1, result.parameters["__param1"]);
+            Assert.AreEqual(0, result.parameters["__param2"]);
         }
 
         [Test]
         public void BinaryOps_Integers_Division()
         {
-            var expression = LambdaExpression(doc => doc.SomeInt / 1);
-            var parameters = new ScriptParameterDictionary();
-
-            var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
+            var result = GetParsedJavaScript(doc => doc.SomeInt / 1 > 0);
 
             Assert.AreEqual(
-                "(doc.SomeInt / args.__param1)",
-                result);
+                "((this.SomeInt / args.__param1) > args.__param2)",
+                result.script);
 
-            Assert.AreEqual(1, parameters.Count);
-            Assert.AreEqual(1, parameters["__param1"]);
+            Assert.AreEqual(2, result.parameters.Count);
+            Assert.AreEqual(1, result.parameters["__param1"]);
+            Assert.AreEqual(0, result.parameters["__param2"]);
         }
 
         [Test]
         public void BinaryOps_Integers_ExclusiveOr()
         {
-            var expression = LambdaExpression(doc => doc.SomeInt ^ 1);
-            var parameters = new ScriptParameterDictionary();
-
-            var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
+            var result = GetParsedJavaScript(doc => (doc.SomeInt ^ 1) > 0);
 
             Assert.AreEqual(
-                "(doc.SomeInt ^ args.__param1)",
-                result);
+                "((this.SomeInt ^ args.__param1) > args.__param2)",
+                result.script);
 
-            Assert.AreEqual(1, parameters.Count);
-            Assert.AreEqual(1, parameters["__param1"]);
+            Assert.AreEqual(2, result.parameters.Count);
+            Assert.AreEqual(1, result.parameters["__param1"]);
+            Assert.AreEqual(0, result.parameters["__param2"]);
         }
 
         [Test]
         public void BinaryOps_Integers_Modulo()
         {
-            var expression = LambdaExpression(doc => doc.SomeInt % 1);
-            var parameters = new ScriptParameterDictionary();
-
-            var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
+            var result = GetParsedJavaScript(doc => doc.SomeInt % 1 > 0);
 
             Assert.AreEqual(
-                "(doc.SomeInt % args.__param1)",
-                result);
+                "((this.SomeInt % args.__param1) > args.__param2)",
+                result.script);
 
-            Assert.AreEqual(1, parameters.Count);
-            Assert.AreEqual(1, parameters["__param1"]);
+            Assert.AreEqual(2, result.parameters.Count);
+            Assert.AreEqual(1, result.parameters["__param1"]);
+            Assert.AreEqual(0, result.parameters["__param2"]);
         }
 
         [Test]
         public void BinaryOps_Integers_Multiply()
         {
-            var expression = LambdaExpression(doc => doc.SomeInt * 1);
-            var parameters = new ScriptParameterDictionary();
-
-            var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
+            var result = GetParsedJavaScript(doc => doc.SomeInt * 1 > 0);
 
             Assert.AreEqual(
-                "(doc.SomeInt * args.__param1)",
-                result);
+                "((this.SomeInt * args.__param1) > args.__param2)",
+                result.script);
 
-            Assert.AreEqual(1, parameters.Count);
-            Assert.AreEqual(1, parameters["__param1"]);
+            Assert.AreEqual(2, result.parameters.Count);
+            Assert.AreEqual(1, result.parameters["__param1"]);
+            Assert.AreEqual(0, result.parameters["__param2"]);
         }
 
         [Test]
         public void BinaryOps_Integers_BinaryOr()
         {
-            var expression = LambdaExpression(doc => doc.SomeInt | 1);
-            var parameters = new ScriptParameterDictionary();
-
-            var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
+            var result = GetParsedJavaScript(doc => (doc.SomeInt | 1) > 0);
 
             Assert.AreEqual(
-                "(doc.SomeInt | args.__param1)",
-                result);
+                "((this.SomeInt | args.__param1) > args.__param2)",
+                result.script);
 
-            Assert.AreEqual(1, parameters.Count);
-            Assert.AreEqual(1, parameters["__param1"]);
+            Assert.AreEqual(2, result.parameters.Count);
+            Assert.AreEqual(1, result.parameters["__param1"]);
+            Assert.AreEqual(0, result.parameters["__param2"]);
         }
 
         [Test]
         public void BinaryOps_Integers_Subtract()
         {
-            var expression = LambdaExpression(doc => doc.SomeInt - 1);
-            var parameters = new ScriptParameterDictionary();
-
-            var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
+            var result = GetParsedJavaScript(doc => doc.SomeInt - 1 > 0);
 
             Assert.AreEqual(
-                "(doc.SomeInt - args.__param1)",
-                result);
+                "((this.SomeInt - args.__param1) > args.__param2)",
+                result.script);
 
-            Assert.AreEqual(1, parameters.Count);
-            Assert.AreEqual(1, parameters["__param1"]);
+            Assert.AreEqual(2, result.parameters.Count);
+            Assert.AreEqual(1, result.parameters["__param1"]);
+            Assert.AreEqual(0, result.parameters["__param2"]);
         }
 
         [Test]
@@ -321,97 +305,89 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.BinaryOpera
         [Test]
         public void BinaryOps_Integers_LessThan()
         {
-            var expression = LambdaExpression(doc => doc.SomeInt < 0);
-            var parameters = new ScriptParameterDictionary();
-
-            var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
+            var result = GetParsedJavaScript(doc => doc.SomeInt < 0);
 
             Assert.AreEqual(
-                "(doc.SomeInt < args.__param1)",
-                result);
+                "(this.SomeInt < args.__param1)",
+                result.script);
 
-            Assert.AreEqual(1, parameters.Count);
-            Assert.AreEqual(0, parameters["__param1"]);
+            Assert.AreEqual(1, result.parameters.Count);
+            Assert.AreEqual(0, result.parameters["__param1"]);
         }
 
         [Test]
         public void BinaryOps_Integers_LessThanOrEqualTo()
         {
-            var expression = LambdaExpression(doc => doc.SomeInt <= 0);
-            var parameters = new ScriptParameterDictionary();
-
-            var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
+            var result = GetParsedJavaScript(doc => doc.SomeInt <= 0);
 
             Assert.AreEqual(
-                "(doc.SomeInt <= args.__param1)",
-                result);
+                "(this.SomeInt <= args.__param1)",
+                result.script);
 
-            Assert.AreEqual(1, parameters.Count);
-            Assert.AreEqual(0, parameters["__param1"]);
+            Assert.AreEqual(1, result.parameters.Count);
+            Assert.AreEqual(0, result.parameters["__param1"]);
         }
 
         [Test]
         public void BinaryOps_Integers_GreaterThan()
         {
-            var expression = LambdaExpression(doc => doc.SomeInt > 0);
-            var parameters = new ScriptParameterDictionary();
-
-            var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
+            var result = GetParsedJavaScript(doc => doc.SomeInt > 0);
 
             Assert.AreEqual(
-                "(doc.SomeInt > args.__param1)",
-                result);
+                "(this.SomeInt > args.__param1)",
+                result.script);
 
-            Assert.AreEqual(1, parameters.Count);
-            Assert.AreEqual(0, parameters["__param1"]);
+            Assert.AreEqual(1, result.parameters.Count);
+            Assert.AreEqual(0, result.parameters["__param1"]);
         }
 
         [Test]
         public void BinaryOps_Integers_GreaterThanOrEqualTo()
         {
-            var expression = LambdaExpression(doc => doc.SomeInt >= 0);
-            var parameters = new ScriptParameterDictionary();
-
-            var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
+            var result = GetParsedJavaScript(doc => doc.SomeInt >= 0);
 
             Assert.AreEqual(
-                "(doc.SomeInt >= args.__param1)",
-                result);
+                "(this.SomeInt >= args.__param1)",
+                result.script);
 
-            Assert.AreEqual(1, parameters.Count);
-            Assert.AreEqual(0, parameters["__param1"]);
+            Assert.AreEqual(1, result.parameters.Count);
+            Assert.AreEqual(0, result.parameters["__param1"]);
         }
 
         [Test]
         public void BinaryOps_Integers_EqualTo()
         {
-            var expression = LambdaExpression(doc => doc.SomeInt == 0);
-            var parameters = new ScriptParameterDictionary();
-
-            var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
+            var result = GetParsedJavaScript(doc => doc.SomeInt == 0);
 
             Assert.AreEqual(
-                "(doc.SomeInt == args.__param1)",
-                result);
+                "(this.SomeInt == args.__param1)",
+                result.script);
 
-            Assert.AreEqual(1, parameters.Count);
-            Assert.AreEqual(0, parameters["__param1"]);
+            Assert.AreEqual(1, result.parameters.Count);
+            Assert.AreEqual(0, result.parameters["__param1"]);
         }
 
         [Test]
         public void BinaryOps_Integers_NotEqualTo()
         {
-            var expression = LambdaExpression(doc => doc.SomeInt != 0);
-            var parameters = new ScriptParameterDictionary();
-
-            var result = expressionProcessorPipeline.ProcessExpression(expression, parameters);
+            var result = GetParsedJavaScript(doc => doc.SomeInt != 0);
 
             Assert.AreEqual(
-                "(doc.SomeInt != args.__param1)",
-                result);
+                "(this.SomeInt != args.__param1)",
+                result.script);
 
-            Assert.AreEqual(1, parameters.Count);
-            Assert.AreEqual(0, parameters["__param1"]);
+            Assert.AreEqual(1, result.parameters.Count);
+            Assert.AreEqual(0, result.parameters["__param1"]);
+        }
+
+        private (string script, ScriptParameterDictionary parameters) GetParsedJavaScript(Expression<Func<TestDocument, bool>> expression)
+        {
+            var patchScriptConditionBuilder = PatchScriptConditionBuilderFactory.CreatePatchScriptBodyBuilder();
+
+            var parameters = new ScriptParameterDictionary();
+            var script = patchScriptConditionBuilder.CreateScriptCondition(expression, parameters);
+
+            return (script, parameters);
         }
 
         private static LambdaExpression LambdaExpression<TProperty>(Expression<Func<TestDocument, TProperty>> expression)

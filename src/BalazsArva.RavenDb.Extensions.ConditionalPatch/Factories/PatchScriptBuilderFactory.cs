@@ -6,7 +6,10 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Factories
     {
         public static IPatchScriptBuilder CreatePatchScriptBuilder()
         {
-            return new PatchScriptBuilder(ExpressionProcessorPipelineFactory.CreateExpressionProcessorPipeline());
+            return new PatchScriptBuilder(
+                ExpressionProcessorPipelineFactory.CreateExpressionProcessorPipeline(),
+                PatchScriptConditionBuilderFactory.CreatePatchScriptBodyBuilder(),
+                PatchScriptBodyBuilderFactory.CreatePatchScriptBodyBuilder());
         }
     }
 }

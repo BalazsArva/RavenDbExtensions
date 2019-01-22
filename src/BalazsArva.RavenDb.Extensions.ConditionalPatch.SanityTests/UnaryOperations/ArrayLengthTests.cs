@@ -15,17 +15,17 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.UnaryOperat
         {
             var result = GetParsedJavaScript(doc => doc.SomeIntArray.Length != 0);
 
-            Assert.AreEqual("(doc.SomeIntArray.length != args.__param1)", result.script);
+            Assert.AreEqual("(this.SomeIntArray.length != args.__param1)", result.script);
             Assert.AreEqual(1, result.parameters.Count);
             Assert.AreEqual(0, result.parameters["__param1"]);
         }
 
-        private (string script, ScriptParameterDictionary parameters) GetParsedJavaScript<TProperty>(Expression<Func<TestDocument, TProperty>> expression)
+        private (string script, ScriptParameterDictionary parameters) GetParsedJavaScript(Expression<Func<TestDocument, bool>> expression)
         {
-            var processor = ExpressionProcessorPipelineFactory.CreateExpressionProcessorPipeline();
+            var patchScriptConditionBuilder = PatchScriptConditionBuilderFactory.CreatePatchScriptBodyBuilder();
 
             var parameters = new ScriptParameterDictionary();
-            var script = processor.ProcessExpression(expression, parameters);
+            var script = patchScriptConditionBuilder.CreateScriptCondition(expression, parameters);
 
             return (script, parameters);
         }

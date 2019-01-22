@@ -15,7 +15,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.MemberAcces
         {
             var result = GetParsedJavaScript(doc => doc.SomeNullableLong != null);
 
-            Assert.AreEqual("(doc.SomeNullableLong != args.__param1)", result.script);
+            Assert.AreEqual("(this.SomeNullableLong != args.__param1)", result.script);
             Assert.AreEqual(1, result.parameters.Count);
             Assert.IsNull(result.parameters["__param1"]);
         }
@@ -25,7 +25,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.MemberAcces
         {
             var result = GetParsedJavaScript(doc => doc.SomeNullableLong.HasValue);
 
-            Assert.AreEqual("(doc.SomeNullableLong != null)", result.script);
+            Assert.AreEqual("(this.SomeNullableLong != null)", result.script);
             Assert.AreEqual(0, result.parameters.Count);
         }
 
@@ -34,7 +34,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.MemberAcces
         {
             var result = GetParsedJavaScript(doc => doc.SomeNullableLong != null);
 
-            Assert.AreEqual("(doc.SomeNullableLong != args.__param1)", result.script);
+            Assert.AreEqual("(this.SomeNullableLong != args.__param1)", result.script);
             Assert.AreEqual(1, result.parameters.Count);
             Assert.IsNull(result.parameters["__param1"]);
         }
@@ -46,7 +46,7 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.MemberAcces
             var result = GetParsedJavaScript(doc => doc.SomeNullableLong.Value != null);
 #pragma warning restore CS0472 // The result of the expression is always the same since a value of this type is never equal to 'null'
 
-            Assert.AreEqual("(doc.SomeNullableLong != args.__param1)", result.script);
+            Assert.AreEqual("(this.SomeNullableLong != args.__param1)", result.script);
             Assert.AreEqual(1, result.parameters.Count);
             Assert.IsNull(result.parameters["__param1"]);
         }
@@ -57,17 +57,17 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.MemberAcces
             var result = GetParsedJavaScript(doc => doc.SomeNullableLong > 0);
 
             // TODO: This is failing because of Nullable and Non-nullable comparison, figure out what to do with it. Maybe should give special treatment in the binary processor and insert a non-null check + value access expression pair.
-            Assert.AreEqual("(doc.SomeNullableLong > args.__param1)", result.script);
+            Assert.AreEqual("(this.SomeNullableLong > args.__param1)", result.script);
             Assert.AreEqual(1, result.parameters.Count);
             Assert.AreEqual(0, result.parameters["__param1"]);
         }
 
-        private (string script, ScriptParameterDictionary parameters) GetParsedJavaScript<TProperty>(Expression<Func<TestDocument, TProperty>> expression)
+        private (string script, ScriptParameterDictionary parameters) GetParsedJavaScript(Expression<Func<TestDocument, bool>> expression)
         {
-            var processor = ExpressionProcessorPipelineFactory.CreateExpressionProcessorPipeline();
+            var patchScriptConditionBuilder = PatchScriptConditionBuilderFactory.CreatePatchScriptBodyBuilder();
 
             var parameters = new ScriptParameterDictionary();
-            var script = processor.ProcessExpression(expression, parameters);
+            var script = patchScriptConditionBuilder.CreateScriptCondition(expression, parameters);
 
             return (script, parameters);
         }
