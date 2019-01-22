@@ -69,7 +69,6 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
             if (methodCallExpression.Method.DeclaringType != StringType)
             {
                 result = default;
-
                 return false;
             }
 
@@ -104,11 +103,9 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
             {
             }
             */
-            else
-            {
-                result = null;
-                return false;
-            }
+
+            result = null;
+            return false;
         }
 
         private bool TryProcessNonStaticStringMethodInvocation(MethodCallExpression methodCallExpression, MethodInfo methodInfo, ScriptParameterDictionary parameters, out string result)
