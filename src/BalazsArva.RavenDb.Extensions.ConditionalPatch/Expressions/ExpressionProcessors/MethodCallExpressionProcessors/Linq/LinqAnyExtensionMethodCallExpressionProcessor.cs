@@ -170,14 +170,19 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
 
         private bool IsInvokedOnDictionary(MethodCallExpression methodCallExpression)
         {
-            var enumerableElementType = methodCallExpression.Method.GetGenericArguments()[0];
-            if (enumerableElementType.IsGenericType)
+            var targetCollectionType = methodCallExpression.Arguments[0].Type;
+
+            if (targetCollectionType.IsGenericType)
             {
-                enumerableElementType = enumerableElementType.GetGenericTypeDefinition();
+                targetCollectionType = targetCollectionType.GetGenericTypeDefinition();
             }
 
-            // Enumerable of KeyValuePair<,> => a Dictionary<,>
-            return enumerableElementType == typeof(KeyValuePair<,>);
+            var implementsIDictionary = targetCollectionType.GetInterfaces()
+                // TODO: It does not work without this. Find out why. Do not remove this line.
+                .Select(i => i.IsGenericType ? i.GetGenericTypeDefinition() : i)
+                .Any(i => i == typeof(IDictionary<,>));
+
+            return implementsIDictionary;
         }
     }
 }
