@@ -122,7 +122,12 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
                 // not the methodCallExpression.Object (because that is null).
                 var ownerExpressionString = _expressionProcessorPipeline.ProcessExpression(methodCallExpression.Arguments[0], parameters);
 
-                // TODO: Special treatment for Dictionaries
+                if (IsInvokedOnDictionary(methodCallExpression))
+                {
+                    result = $"Object.keys({ownerExpressionString}).length > 0";
+                    return true;
+                }
+
                 result = $"{ownerExpressionString}.length > 0";
                 return true;
             }
@@ -145,23 +150,34 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Expressions.ExpressionP
                 // not the methodCallExpression.Object (because that is null).
                 var ownerExpressionString = _expressionProcessorPipeline.ProcessExpression(methodCallExpression.Arguments[0], parameters);
 
-                /*
-                var predicate = (LambdaExpression)methodCallExpression.Arguments[1];
-                var jsPredicateParameter = predicate.Parameters[0].Name;
-                var jsPredicateBody = _expressionProcessorPipeline.ProcessExpression(predicate, parameters);
-                var jsPredicateFunction = $"function({jsPredicateParameter}) {{ return {jsPredicateBody}; }}";
-                */
-
                 var predicate = (LambdaExpression)methodCallExpression.Arguments[1];
                 var jsPredicateFunction = _expressionProcessorPipeline.ProcessExpression(predicate, parameters);
 
-                // TODO: Special treatment for Dictionaries
-                result = $"({ownerExpressionString}).some({jsPredicateFunction}).length > 0";
+                if (IsInvokedOnDictionary(methodCallExpression))
+                {
+                    // Ugly but simple. Could write a loop instead so we could terminate early if a match is found.
+                    result = $"Object.keys({ownerExpressionString}).map(function(key) {{ return {{ Key: key, Value: {ownerExpressionString}[key] }}; }}).some({jsPredicateFunction})";
+                    return true;
+                }
+
+                result = $"({ownerExpressionString}).some({jsPredicateFunction})";
                 return true;
             }
 
             result = default;
             return false;
+        }
+
+        private bool IsInvokedOnDictionary(MethodCallExpression methodCallExpression)
+        {
+            var enumerableElementType = methodCallExpression.Method.GetGenericArguments()[0];
+            if (enumerableElementType.IsGenericType)
+            {
+                enumerableElementType = enumerableElementType.GetGenericTypeDefinition();
+            }
+
+            // Enumerable of KeyValuePair<,> => a Dictionary<,>
+            return enumerableElementType == typeof(KeyValuePair<,>);
         }
     }
 }

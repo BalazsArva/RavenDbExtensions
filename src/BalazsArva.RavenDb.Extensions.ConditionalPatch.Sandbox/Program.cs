@@ -42,6 +42,9 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.Sandbox
             PrintCondition(doc => doc.InvolvedUsers.Any());
             PrintCondition(doc => doc.InvolvedUsers.Any(u => u == string.Empty));
 
+            PrintCondition(doc => doc.Dictionary.Any());
+            PrintCondition(doc => doc.Dictionary.Any(pair => pair.Value == string.Empty || pair.Key == "ThisIsIt"));
+
             var script = patchScriptBuilder.CreateConditionalPatchScript(
                 new PropertyUpdateBatch<TestDocument>()
                     .Add(doc => doc.LastKnownChangeId, dummyChangeId2)
