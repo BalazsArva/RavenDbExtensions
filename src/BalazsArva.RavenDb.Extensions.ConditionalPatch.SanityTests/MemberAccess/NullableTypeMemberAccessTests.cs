@@ -52,14 +52,27 @@ namespace BalazsArva.RavenDb.Extensions.ConditionalPatch.SanityTests.MemberAcces
         }
 
         [Test]
-        public void Predicate_Nullable_TestValueAccessWithoutDotValue()
+        public void Predicate_Nullable_TestValueAccessWithoutDotValue_LeftOperandIsNullable()
         {
             var result = GetParsedJavaScript(doc => doc.SomeNullableLong > 0);
+            
+            Assert.AreEqual("((this.SomeNullableLong != args.__param1) ? (this.SomeNullableLong > args.__param2) : args.__param3)", result.script);
+            Assert.AreEqual(3, result.parameters.Count);
+            Assert.AreEqual(null, result.parameters["__param1"]);
+            Assert.AreEqual(0, result.parameters["__param2"]);
+            Assert.AreEqual(false, result.parameters["__param3"]);
+        }
 
-            // TODO: This is failing because of Nullable and Non-nullable comparison, figure out what to do with it. Maybe should give special treatment in the binary processor and insert a non-null check + value access expression pair.
-            Assert.AreEqual("(this.SomeNullableLong > args.__param1)", result.script);
-            Assert.AreEqual(1, result.parameters.Count);
-            Assert.AreEqual(0, result.parameters["__param1"]);
+        [Test]
+        public void Predicate_Nullable_TestValueAccessWithoutDotValue_RightOperandIsNullable()
+        {
+            var result = GetParsedJavaScript(doc => 0 < doc.SomeNullableLong );
+
+            Assert.AreEqual("((this.SomeNullableLong != args.__param1) ? (args.__param2 < this.SomeNullableLong) : args.__param3)", result.script);
+            Assert.AreEqual(3, result.parameters.Count);
+            Assert.AreEqual(null, result.parameters["__param1"]);
+            Assert.AreEqual(0, result.parameters["__param2"]);
+            Assert.AreEqual(false, result.parameters["__param3"]);
         }
 
         private (string script, ScriptParameterDictionary parameters) GetParsedJavaScript(Expression<Func<TestDocument, bool>> expression)
